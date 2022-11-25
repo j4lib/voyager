@@ -70,7 +70,7 @@ def load_yaml(file):
     return config
 
 #%%
-data_directory = ""
+data_directory = "../data/"
 vessel_cfg_path =  './voyager/configs/vessels.yml'
 
 # Chart options
@@ -78,8 +78,8 @@ lon_min = -10
 lat_min = 50
 lon_max = 15
 lat_max = 65
-start_date = '2017-01-01'
-end_date = '2017-01-30'
+start_date = '1993-03-03'
+end_date = '1993-03-15'
 weights = [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
@@ -89,7 +89,7 @@ sigma = 5000
 
 # Trajectory options
 launch_freq = 8 # days
-duration = 7 # max duration in days
+duration = 5 # max duration in days
 timestep = 3600 #3600 # s
 mode = 'sailing' # or 'drift', 'paddling'
 craft = 2 # the ones in the config
