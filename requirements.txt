@@ -1,5 +1,8 @@
 pandas
 numpy
+matplotlib
+cartopy
+geopandas
 pyyaml
 xarray
 opencv-python

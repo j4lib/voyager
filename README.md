@@ -77,7 +77,7 @@ The demo generates two images illustrating a random sample trajectory in the Nor
 
 
 ## Author
-This package was implemented and designed by Victor Wåhlstrand Skärström, as part of the Centre for Digital Humanities at the University of Gothenburg.
+This package is currently maintained by Matteo Tomasini, for the [Centre for Digital Humanities](https://www.gu.se/en/digital-humanities) at the University of Gothenburg, and it is employed for the project Maritima Möten. The package was initially implemented and designed by Victor Wåhlstrand Skärström.
 
 ## License
 This package is licensed with the MIT License.
