@@ -70,16 +70,16 @@ def load_yaml(file):
     return config
 
 #%%
-data_directory = "../data/"
+data_directory = "D:/LIR/"
 vessel_cfg_path =  './voyager/configs/vessels.yml'
 
 # Chart options
-lon_min = -10
-lat_min = 50
+lon_min = 4
+lat_min = 52
 lon_max = 15
-lat_max = 65
-start_date = '1993-03-03'
-end_date = '1993-03-15'
+lat_max = 60
+start_date = '1995-03-03'
+end_date = '1995-03-15'
 weights = [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
@@ -90,11 +90,11 @@ sigma = 5000
 # Trajectory options
 launch_freq = 8 # days
 duration = 5 # max duration in days
-timestep = 3600 #3600 # s
+timestep = 21600 #3600 # s
 mode = 'sailing' # or 'drift', 'paddling'
 craft = 2 # the ones in the config
-destination = [1, 54] # lon lat format
-departure_points = [[4.474, 58.962], [7.655, 54.718]]
+destination = [7.5, 58] # [1, 54] # lon lat format
+departure_points = [[8.605, 57.149]] # Jutland: [8.605, 57.149] # Picked by Victor: [[4.474, 58.962], [7.655, 54.718]]
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]

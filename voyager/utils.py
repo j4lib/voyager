@@ -87,9 +87,9 @@ def cmems_to_xr(currents: xr.Dataset) -> xr.Dataset:
     """
     # Remove single value in depth dimension
     # Change variable names
-    currents = currents.drop("depth")\
-                       .squeeze()\
-                       .rename({"uo_oras": "u", "vo_oras": "v"})
+    # currents = currents.drop("depth")\
+    #                    .squeeze()\
+    currents = currents.rename({"uo": "u", "vo": "v"})
 
     currents["time"] = currents.indexes['time'].normalize()
 
