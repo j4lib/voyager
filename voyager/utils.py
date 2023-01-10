@@ -62,14 +62,6 @@ def ecmwf_to_xr(winds: xr.Dataset) -> xr.Dataset:
     Returns:
         xr.Dataset: Winds as a normalized Dataset
     """
-
-    # Change order of indexation, strictly ascending coordinates
-    # longitude from -180 to +180
-    # latitude from -90 to +90
-    winds = winds.assign_coords(longitude = normalize_longitude(winds.longitude.values))
-    winds = winds.reindex(latitude = list(reversed(winds.latitude)),
-                          longitude = list(sorted(winds.longitude)))
-    winds["time"] = winds.indexes['time'].normalize()
     
     # Change variable names
     winds = winds.rename({"u10": "u", "v10": "v"})
@@ -87,11 +79,12 @@ def cmems_to_xr(currents: xr.Dataset) -> xr.Dataset:
     """
     # Remove single value in depth dimension
     # Change variable names
-    # currents = currents.drop("depth")\
-    #                    .squeeze()\
-    currents = currents.rename({"uo": "u", "vo": "v"})
-
-    currents["time"] = currents.indexes['time'].normalize()
+    try:
+        currents = currents.drop("depth")\
+                           .squeeze()\
+                           .rename({"uo": "u", "vo": "v"})
+    except:
+        currents = currents.rename({"uo": "u", "vo": "v"})
 
     return currents
 
@@ -138,10 +131,8 @@ def load_data(start: pd.Timestamp, end: pd.Timestamp, bbox: List, data_directory
         data = xr.open_mfdataset(filenames, parallel=parallel)
         data = ecmwf_to_xr(data)
 
-
     else:
         raise ValueError("Source must be currents or winds.")
 
-    data = data.sel(time=dates, longitude=slice(bbox[0], bbox[2]), latitude=slice(bbox[1], bbox[3])).load()
-
+    data = data.sel(time=slice(start, end)).load()
     return data.u, data.v

@@ -74,10 +74,10 @@ data_directory = "D:/LIR/"
 vessel_cfg_path =  './voyager/configs/vessels.yml'
 
 # Chart options
-lon_min = 4
-lat_min = 52
-lon_max = 15
-lat_max = 60
+lon_min = 5.692326 #4
+lat_min = 53.671019 #52
+lon_max = 13.536054 #15
+lat_max = 59.388759 #60
 start_date = '1995-03-03'
 end_date = '1995-03-15'
 weights = [100, 50, 1, 100]
