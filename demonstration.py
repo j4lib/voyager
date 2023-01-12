@@ -80,21 +80,21 @@ lon_max = 13.536054 #15
 lat_max = 59.388759 #60
 start_date = '1995-03-03'
 end_date = '1995-03-15'
-weights = [100, 50, 1, 100]
+weights = [1, 1, 1, 1] # [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
 # Model options
-tolerance = 0.01
-sigma = 5000
+tolerance = 0.001
+sigma = 10
 
 # Trajectory options
-launch_freq = 8 # days
+launch_freq = 2 # days
 duration = 5 # max duration in days
-timestep = 21600 #3600 # s
-mode = 'sailing' # or 'drift', 'paddling'
+timestep = 3600 # s
+mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 2 # the ones in the config
-destination = [7.5, 58] # [1, 54] # lon lat format
-departure_points = [[8.605, 57.149]] # Jutland: [8.605, 57.149] # Picked by Victor: [[4.474, 58.962], [7.655, 54.718]]
+destination = [7.707, 57.96] # [1, 54] # lon lat format
+departure_points = [[8.77, 57.155]] # Jutland: [8.77, 57.155] # Picked by Victor: [[4.474, 58.962], [7.655, 54.718]]
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
@@ -110,6 +110,9 @@ vessel_cfg = load_yaml(vessel_cfg_path)
 # Should possibly be pre-computed if computation is too slow
 chart = voyager.Chart(bbox, start_date, start_date+pd.Timedelta(duration, unit='days'))\
                     .load(data_directory, weights=weights, iterations=iterations)
+
+# f, ax = plot_contours(chart)
+# plt.show()
 
 #%%  
 # Create the model that steps throught time
@@ -134,8 +137,4 @@ results = voyager.Traverser.trajectory(
 #%%
 f, ax = plot(results['features'], bbox)
 plt.show()
-
-f, ax = plot_contours(chart)
-plt.show()
-
 # %%

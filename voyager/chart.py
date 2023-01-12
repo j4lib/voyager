@@ -93,7 +93,28 @@ def _interpolate(x, start_date, end_date):
 
     X = x.sel(time=slice(start_date, end_date))
 
-    return RegularGridInterpolator((np.arange(X.shape[0]), x.longitude, x.latitude), 
+    #longitudes = np.linspace(x.longitude.min(), x.longitude.max(), x.shape[1])
+    #latitudes = np.linspace(x.latitude.min(), x.latitude.max(), x.shape[2])
+
+    try:
+        longitudes = x.longitude.values
+        latitudes = x.latitude.values
+
+        return RegularGridInterpolator((np.arange(X.shape[0]), longitudes, latitudes), 
                                     np.transpose(X.values, (0, 2, 1)), 
                                     bounds_error=False, 
                                     fill_value=np.nan)
+    except:
+        longitudes = np.linspace(x.longitude.min(), x.longitude.max(), x.longitude.shape[1])
+        latitudes = np.linspace(x.latitude.min(), x.latitude.max(), x.latitude.shape[0])
+
+        return RegularGridInterpolator((np.arange(X.shape[0]), longitudes, latitudes), 
+                                    np.transpose(X.values, (0, 2, 1)), 
+                                    bounds_error=False, 
+                                    fill_value=np.nan)
+
+    # return RegularGridInterpolator((np.arange(X.shape[0]), x.longitude, x.latitude), 
+    #                                 np.transpose(X.values, (0, 2, 1)), 
+    #                                 bounds_error=False, 
+    #                                 fill_value=np.nan)
+                                    
