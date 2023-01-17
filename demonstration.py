@@ -60,6 +60,10 @@ def plot(geojson: Dict, bbox: List, **kwargs):
     df = geopandas.GeoDataFrame.from_features(geojson)
     df.plot(ax=ax, zorder=10, **kwargs)
 
+    # Add departure point and destination
+    ax.scatter(x=departure_points[0][0], y=departure_points[0][1], color="red")
+    ax.scatter(x=destination[0], y=destination[1], color="green")
+
     return fig, ax
 
 def load_yaml(file):
@@ -78,23 +82,23 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1995-03-03'
-end_date = '1995-03-15'
+start_date = '1995-06-16'
+end_date = '1995-06-30'
 weights = [1, 1, 1, 1] # [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
 # Model options
 tolerance = 0.001
-sigma = 10
+sigma = 100
 
 # Trajectory options
 launch_freq = 2 # days
 duration = 5 # max duration in days
-timestep = 3600 # s
+timestep = 300 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 2 # the ones in the config
-destination = [7.707, 57.96] # [1, 54] # lon lat format
-departure_points = [[8.77, 57.155]] # Jutland: [8.77, 57.155] # Picked by Victor: [[4.474, 58.962], [7.655, 54.718]]
+destination = [8.154, 58.034] # [7.707, 57.96]  # lon lat format
+departure_points = [[9.806, 57.626]] # Jutland: [8.77, 57.155] # Picked by Victor: [[4.474, 58.962], [7.655, 54.718]]
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
@@ -111,8 +115,9 @@ vessel_cfg = load_yaml(vessel_cfg_path)
 chart = voyager.Chart(bbox, start_date, start_date+pd.Timedelta(duration, unit='days'))\
                     .load(data_directory, weights=weights, iterations=iterations)
 
-# f, ax = plot_contours(chart)
-# plt.show()
+#f, ax = plot_contours(chart)
+#plt.show()
+
 
 #%%  
 # Create the model that steps throught time
@@ -137,4 +142,6 @@ results = voyager.Traverser.trajectory(
 #%%
 f, ax = plot(results['features'], bbox)
 plt.show()
+# %%
+results
 # %%
