@@ -1,5 +1,7 @@
 from . import geo
 import numpy as np
+import pandas as pd
+import math
 from typing import *
 
 class Displacement:
@@ -228,7 +230,7 @@ class Displacement:
         a = np.deg2rad(a)
 
         # Get the displacement due to paddling towards the target
-        dxy_paddle = speed * self.dt * np.array([-np.sin(a), np.cos(a)])
+        dxy_paddle = self.paddling_speed(w, a) * self.dt * np.array([-np.sin(a), np.cos(a)])
 
         # Calculate the displacement due to drift
         dxy_drift = self.from_drift(c, w).dxy
@@ -313,6 +315,45 @@ class Displacement:
         return self
  
 
+    @staticmethod
+    def paddling_speed(w: np.ndarray, bearing: np.float64):
+        """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
+
+        Args:
+            w (np.ndarray): Wind velocity (two components)
+            bearig (np.float64): bearing of the boat (radiants)
+
+        Raises:
+            ValueError: Raised if the angle between the bearing and reference is a non-positive number
+            ValueError: Raised if the speed of the wind is higher than 30
+        """
+
+        polar_diagram = pd.read_csv('./voyager/configs/hjortspring_polar_paddling.txt', sep="\t", index_col=0)
+        
+        # angle between bearing and wind
+        bearing_decomposed = np.array([np.cos(bearing), np.sin(bearing)]).squeeze()
+        bearing_decomposed = bearing_decomposed.squeeze()
+        w = w.squeeze()
+
+        true_wind_angle = np.arctan2(np.linalg.det([bearing_decomposed, w]), np.dot(bearing_decomposed, w))
+        true_wind_angle = np.abs(np.rad2deg(true_wind_angle))
+
+        true_wind_speed = np.linalg.norm(w)
+
+        # round angle to next 10 and speed to next 5
+        if 0 <= true_wind_angle <= 180:
+            rounded_angle = math.ceil(true_wind_angle/10)*10
+        else:
+            ValueError(f"Wind angle is not between 0 and 180 ({true_wind_angle} deg)")
+        if 0 <= true_wind_speed <= 30:
+            rounded_speed = math.ceil(true_wind_speed/5)*5
+        else:
+            ValueError(f"Wind speed is too high ({true_wind_speed} m/s)")
+
+        speed = polar_diagram[str(rounded_speed)][rounded_angle]
+
+        return speed
+        
 
     @staticmethod
     def knots_to_si(knots: float) -> float:
