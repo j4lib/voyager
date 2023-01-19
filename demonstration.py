@@ -82,23 +82,23 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1995-06-16'
-end_date = '1995-06-30'
+start_date = '2018-10-27'
+end_date = '2018-10-30'
 weights = [1, 1, 1, 1] # [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
 # Model options
 tolerance = 0.001
-sigma = 100
+sigma = 100 # 100
 
 # Trajectory options
 launch_freq = 2 # days
-duration = 5 # max duration in days
-timestep = 300 # s
+duration = 2 # max duration in days
+timestep = 600 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 2 # the ones in the config
-destination = [8.154, 58.034] # [7.707, 57.96]  # lon lat format
-departure_points = [[9.806, 57.626]] # Jutland: [8.77, 57.155] # Picked by Victor: [[4.474, 58.962], [7.655, 54.718]]
+destination = [6.6024, 58.0317]  # lon lat format
+departure_points = [[8.5237, 57.1407]] # 
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
