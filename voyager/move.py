@@ -177,36 +177,38 @@ class Displacement:
         """
 
         # Calculate the drift due to the currents
-        dxy_c = c * self.dt
+        dxy_current = c * self.dt
 
-        if self.vessel.craft != 7:
+        self.dxy = dxy_current
 
-            # Load vessel parameters
-            Sl = self.vessel.params["Sl"]
-            Yt = self.vessel.params["Yt"]
-            Da = self.vessel.params["Da"]
+        # if self.vessel.craft != 7:
 
-            # Convert to degrees
-            Da = np.deg2rad(Da)
+        #     # Load vessel parameters
+        #     Sl = self.vessel.params["Sl"]
+        #     Yt = self.vessel.params["Yt"]
+        #     Da = self.vessel.params["Da"]
 
-            # the deflections due to Da half right
-            ## and half left of the wind
-            flip = np.random.choice((1, -1))
+        #     # Convert to degrees
+        #     Da = np.deg2rad(Da)
 
-            # Calculate the leeway speed and displacement
-            dxy_leeway = Displacement.leeway_displacement(w, Sl, Yt, self.dt)
+        #     # the deflections due to Da half right
+        #     ## and half left of the wind
+        #     flip = np.random.choice((1, -1))
 
-            # Calculate the deflection as a rotation
-            dxy_deflect = Displacement.rotate(dxy_leeway, angle=Da*flip)
+        #     # Calculate the leeway speed and displacement
+        #     dxy_leeway = Displacement.leeway_displacement(w, Sl, Yt, self.dt)
 
-            # Total displacement in metres
-            self.dxy = dxy_deflect + dxy_c
+        #     # Calculate the deflection as a rotation
+        #     dxy_deflect = Displacement.rotate(dxy_leeway, angle=Da*flip)
 
-        elif self.vessel.craft == 7:
+        #     # Total displacement in metres
+        #     self.dxy = dxy_c + dxy_deflect 
 
-            dxy_leeway = Displacement.levison_leeway_displacement(w, self.dt)
+        # elif self.vessel.craft == 7:
 
-            self.dxy = dxy_leeway + dxy_c
+        #     dxy_leeway = Displacement.levison_leeway_displacement(w, self.dt)
+
+        #     self.dxy = dxy_leeway + dxy_c
 
         return self
 

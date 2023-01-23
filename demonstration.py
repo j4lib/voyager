@@ -64,6 +64,8 @@ def plot(geojson: Dict, bbox: List, **kwargs):
     ax.scatter(x=departure_points[0][0], y=departure_points[0][1], color="red")
     ax.scatter(x=destination[0], y=destination[1], color="green")
 
+    ax.set_title(f'Trip duration: {df.duration.values[0]} hours.')
+
     return fig, ax
 
 def load_yaml(file):
@@ -89,7 +91,7 @@ iterations = [15, 5, 3, 1]
 
 # Model options
 tolerance = 0.001
-sigma = 100 # 100
+sigma = 500 # 100
 
 # Trajectory options
 launch_freq = 2 # days

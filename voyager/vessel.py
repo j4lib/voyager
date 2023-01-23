@@ -23,11 +23,13 @@ class Vessel:
         self.x = x
         self.y = y
         self.speed = speed
+        
 
         # Initialize parameters to save
         self.trajectory = [[self.x, self.y]]
         self.distance = 0
         self.mean_speed = 0
+        self.duration = 0
 
         self.route  = route
         self.route_taken = [[float(x),float(y)] for x,y in self.route]
@@ -38,7 +40,11 @@ class Vessel:
 
 
     @classmethod
-    def from_position(cls, point: Tuple[float, float], chart: chart.Chart = None, destination: Tuple[float, float] = None, interval: int =5, **kwargs):
+    def from_position(cls, point: Tuple[float, float], 
+                           chart: chart.Chart = None, 
+                           destination: Tuple[float, float] = None, 
+                           interval: int = 5, 
+                           **kwargs):
         """Creates a vessel from a start position, using a pre-supplied Chart object and destination.
         The chart and interval parameters are used to create a route from the start position and the destination, the interval
         deciding the number of milestones along the way.
@@ -95,7 +101,11 @@ class Vessel:
 
 
     @classmethod
-    def from_positions(cls, points: List[Tuple[float, float]], chart: chart.Chart = None, destination: Tuple[float, float] = None, interval: int = 5, **kwargs) -> List:
+    def from_positions(cls, points: List[Tuple[float, float]], 
+                            chart: chart.Chart = None, 
+                            destination: Tuple[float, float] = None, 
+                            interval: int = 5, 
+                            **kwargs) -> List:
         """Generates a list of vessels from multiple positions.
             The chart and interval parameters are used to create a route from the start position and the destination, the interval
             deciding the number of milestones along the way.
@@ -136,7 +146,7 @@ class Vessel:
         return self
 
     def update_distance(self, dx: float, dy: float):
-        """Updates the cumulative distance travelled for the trajectory
+        """Updates the cumulative distance travelled for the trajectory, as well as duration (in time steps)
 
         Args:
             dx (float): longitudinal displacement (km)
@@ -144,6 +154,7 @@ class Vessel:
         """
 
         self.distance += np.linalg.norm(np.vstack((dx.squeeze(), dy.squeeze()))).squeeze().item()
+        self.duration += 1
 
         return self
 
@@ -225,7 +236,8 @@ class Vessel:
                     "distance": self.distance,
                     "mean_speed": self.mean_speed,
                     "destination": self.destination,
-                    "route": self.route_taken
+                    "route": self.route_taken,
+                    "duration": self.duration*dt / 3600 # in hours
                 }          
             }
         )

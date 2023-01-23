@@ -109,7 +109,7 @@ class Traverser:
                                       craft = craft,
                                       chart = chart,
                                       destination = destination,
-                                      speed =speed,
+                                      speed = speed,
                                       mode = mode,
                                       params = vessel_params[mode][craft])
 
