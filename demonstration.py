@@ -88,19 +88,19 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '2018-10-27'
-end_date = '2018-10-30'
-weights = [5, 5, 1, 100] # [100, 50, 1, 100]
+start_date = '2018-06-27'
+end_date = '2018-06-30'
+weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
 # Model options
 tolerance = 0.001
-sigma = 500 # 100
+sigma = 1000 # 100
 
 # Trajectory options
 launch_freq = 2 # days
 duration = 2 # max duration in days
-timestep = 600 # s
+timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 2 # the ones in the config
 destination = [6.6024, 58.0317]  # lon lat format
