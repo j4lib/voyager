@@ -138,7 +138,8 @@ results = voyager.Traverser.trajectory(
                         departure_point = departure_points[0], 
                         vessel_params=vessel_cfg,
                         chart = chart, 
-                        model = model
+                        model = model,
+                        follows_route=True
                     )
 
 #%%
