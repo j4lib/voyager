@@ -29,7 +29,7 @@ def plot_contours(chart: voyager.Chart):
 
     return fig, ax
 
-def plot(geojson: Dict, bbox: List, **kwargs):
+def plot(geojson: Dict, bbox: List, show_route: bool = False, **kwargs):
     """Utility function to statically visualize the calculated trajectories
 
         Args:
@@ -66,6 +66,10 @@ def plot(geojson: Dict, bbox: List, **kwargs):
 
     ax.set_title(f'Trip duration: {df.duration.values[0]} hours.')
 
+    if show_route == True:
+        for i in range(len(df.route[0])):
+            ax.scatter(x=df.route[0][i][0], y=df.route[0][i][1], color="blue")
+
     return fig, ax
 
 def load_yaml(file):
@@ -86,7 +90,7 @@ lon_max = 13.536054 #15
 lat_max = 59.388759 #60
 start_date = '2018-10-27'
 end_date = '2018-10-30'
-weights = [1, 1, 1, 1] # [100, 50, 1, 100]
+weights = [5, 5, 1, 100] # [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
 # Model options
