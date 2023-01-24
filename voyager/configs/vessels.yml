@@ -35,6 +35,7 @@ drifting:
     Yt: 0
     Da: 0
 
+
 sailing:
   1:
     name: 'sailing raft'
@@ -105,3 +106,8 @@ paddling:
     Sl: 0
     Yt: 0
     Da: 0
+  'hjortspring':
+    name: 'hjortspring'
+    S1: null
+    Yt: null
+    Da: null

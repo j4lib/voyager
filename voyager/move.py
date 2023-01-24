@@ -181,34 +181,38 @@ class Displacement:
 
         self.dxy = dxy_current
 
-        # if self.vessel.craft != 7:
+        if self.vessel.craft != 7 and self.vessel.craft != 'hjortspring':
 
-        #     # Load vessel parameters
-        #     Sl = self.vessel.params["Sl"]
-        #     Yt = self.vessel.params["Yt"]
-        #     Da = self.vessel.params["Da"]
+            # Load vessel parameters
+            Sl = self.vessel.params["Sl"]
+            Yt = self.vessel.params["Yt"]
+            Da = self.vessel.params["Da"]
 
-        #     # Convert to degrees
-        #     Da = np.deg2rad(Da)
+            # Convert to degrees
+            Da = np.deg2rad(Da)
 
-        #     # the deflections due to Da half right
-        #     ## and half left of the wind
-        #     flip = np.random.choice((1, -1))
+            # the deflections due to Da half right
+            ## and half left of the wind
+            flip = np.random.choice((1, -1))
 
-        #     # Calculate the leeway speed and displacement
-        #     dxy_leeway = Displacement.leeway_displacement(w, Sl, Yt, self.dt)
+            # Calculate the leeway speed and displacement
+            dxy_leeway = Displacement.leeway_displacement(w, Sl, Yt, self.dt)
 
-        #     # Calculate the deflection as a rotation
-        #     dxy_deflect = Displacement.rotate(dxy_leeway, angle=Da*flip)
+            # Calculate the deflection as a rotation
+            dxy_deflect = Displacement.rotate(dxy_leeway, angle=Da*flip)
 
-        #     # Total displacement in metres
-        #     self.dxy = dxy_c + dxy_deflect 
+            # Total displacement in metres
+            self.dxy = dxy_current + dxy_deflect 
 
-        # elif self.vessel.craft == 7:
+        elif self.vessel.craft == 7:
 
-        #     dxy_leeway = Displacement.levison_leeway_displacement(w, self.dt)
+            dxy_leeway = Displacement.levison_leeway_displacement(w, self.dt)
 
-        #     self.dxy = dxy_leeway + dxy_c
+            self.dxy = dxy_leeway + dxy_current
+
+        elif self.vessel.craft == 'hjortspring':
+            pass
+            
 
         return self
 
@@ -232,7 +236,10 @@ class Displacement:
         a = np.deg2rad(a)
 
         # Get the displacement due to paddling towards the target
-        dxy_paddle = self.paddling_speed(w, a) * self.dt * np.array([-np.sin(a), np.cos(a)])
+        if self.vessel.craft == 'hjortspring':
+            dxy_paddle = self.paddling_speed(w, a) * self.dt * np.array([-np.sin(a), np.cos(a)])
+        else:
+            dxy_paddle = speed * self.dt * np.array([-np.sin(a), np.cos(a)])
 
         # Calculate the displacement due to drift
         dxy_drift = self.from_drift(c, w).dxy

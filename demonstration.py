@@ -102,7 +102,7 @@ launch_freq = 2 # days
 duration = 2 # max duration in days
 timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
-craft = 2 # the ones in the config
+craft = 'hjortspring' # the ones in the config
 destination = [6.6024, 58.0317]  # lon lat format
 departure_points = [[8.5237, 57.1407]] # 
 
