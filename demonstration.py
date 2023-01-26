@@ -132,18 +132,16 @@ model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
 #%%
 # Calculate the trajectories
 
-# results = voyager.Traverser.trajectory(
-#                         mode = mode,
-#                         craft = craft, 
-#                         duration = duration,
-#                         timestep = timestep, 
-#                         destination = destination,  
-#                         bbox = bbox, 
-#                         departure_point = departure_points[0], 
-#                         vessel_params=vessel_cfg,
-#                         chart = chart, 
-#                         model = model
-#                     )
+single_result = voyager.Traverser.trajectory(mode = mode,
+                                             craft = craft, 
+                                             duration = duration,
+                                             timestep = timestep, 
+                                             destination = destination,  
+                                             bbox = bbox, 
+                                             departure_point = departure_points[0], 
+                                             vessel_params=vessel_cfg,
+                                             chart = chart, 
+                                             model = model)
 
 #%%
 traverser = voyager.Traverser(mode = mode,
@@ -155,15 +153,26 @@ traverser = voyager.Traverser(mode = mode,
                               end_date = end_date,
                               launch_freq = launch_freq,
                               bbox = bbox, 
-                              departure_points = departure_points, 
+                              departure_points = departure_points,
                               data_directory = data_directory,
                               vessel_config=vessel_cfg_path)
 
 results = traverser.run()
 
 #%%
-f, ax = plot(results['features'], bbox)
+unpacked = []
+dates = pd.date_range(start_date, end_date, freq=f'{launch_freq}d')
+
+#%%
+for date in dates.strftime('%Y-%m-%d'):
+    vessel = results[date][0]
+    arrival_date = pd.Timedelta(seconds = vessel.duration * timestep)
+    unpacked.append(vessel.to_GeoJSON(start_date, arrival_date, timestep))
+
+#%%
+f, ax = plot(unpacked[0]['features'], bbox)
 plt.show()
 # %%
-results
+f, ax = plot(single_result['features'], bbox)
+plt.show()
 # %%

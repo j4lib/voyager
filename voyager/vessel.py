@@ -90,7 +90,12 @@ class Vessel:
 
 
             # Create a vessel
-            vessel = cls(x, y, route=route, destination=destination, **kwargs)
+            vessel = cls(x, y, 
+                         route = route, 
+                         destination = destination, 
+                         craft = kwargs['craft'], 
+                         mode = kwargs['mode'],
+                         speed = kwargs['speed'])
 
         else:
 
@@ -122,7 +127,7 @@ class Vessel:
         vessels = []
         for point in points:
 
-            vessel = cls.from_position(point, chart, destination, interval, kwargs)
+            vessel = cls.from_position(point, chart, destination, interval, **kwargs)
 
             vessels.append(vessel)
 
