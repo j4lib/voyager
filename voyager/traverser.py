@@ -65,7 +65,8 @@ class Traverser:
             chart_kwargs = {}, 
             model_kwargs = {}, 
             chart = None, 
-            model = None) -> Dict:
+            model = None,
+            follows_route = False) -> Dict:
         """Generates a single set of trajectories from a single set of departure and destination points.
 
         Args:
@@ -84,6 +85,7 @@ class Traverser:
             model_kwargs (dict, optional): Parameters for the model configuration. Defaults to {}.
             chart (_type_, optional): Pre-supplied Chart object. Defaults to None.
             model (_type_, optional): Pre-supplied Model object. Defaults to None.
+            follows_route (bool, optional): Uses ideal route, or points to destination. Defaults to False.
 
         Returns:
             Dict: The trajectories as GeoJSON compliant dictionary
@@ -111,6 +113,7 @@ class Traverser:
                                       destination = destination,
                                       speed = speed,
                                       mode = mode,
+                                      with_route = follows_route,
                                       params = vessel_params[mode][craft])
 
         # Interpolate the data for only the duration specified
@@ -139,6 +142,7 @@ class Traverser:
         Returns:
             Dict[str, Dict]: A date-tagged dictionary with GeoJSON compliant dictionary results
         """
+        # TODO: modify the function from_positions to accept no route!
 
         # The chart object keeps track of the region of interest
         # and the wind/current data for that region
@@ -168,7 +172,7 @@ class Traverser:
                                             chart = chart, 
                                             destination = self.destination, 
                                             speed = self.speed, 
-                                            mode = self.mode, 
+                                            mode = self.mode,
                                             vessel_config=self.vessel_config)
             
             # Interpolate the data for only the duration specified

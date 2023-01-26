@@ -13,6 +13,7 @@ class Vessel:
                        destination = None,
                        launch_date = None,
                        speed = 0,
+                       with_route = False,
                        params = {}
                        ):
 
@@ -33,7 +34,15 @@ class Vessel:
 
         self.route  = route
         self.route_taken = [[float(x),float(y)] for x,y in self.route]
-        self.target = self.route.pop()
+        try:
+            if with_route == True:
+                self.target = self.route.pop()
+            elif with_route == False:
+                self.target = self.destination
+        except:
+            print("You need to specify whether a route is taken!")
+            
+            
 
         # Read the features of the vessel
         self.params = params
