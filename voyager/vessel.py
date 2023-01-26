@@ -127,7 +127,11 @@ class Vessel:
         vessels = []
         for point in points:
 
-            vessel = cls.from_position(point, chart, destination, interval, **kwargs)
+            vessel = cls.from_position(point, 
+                                       chart, 
+                                       destination, 
+                                       interval, 
+                                       **kwargs)
 
             vessels.append(vessel)
 

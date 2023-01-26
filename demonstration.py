@@ -157,7 +157,7 @@ traverser = voyager.Traverser(mode = mode,
                               data_directory = data_directory,
                               vessel_config=vessel_cfg_path)
 
-results = traverser.run()
+results = traverser.run(chart=chart, model=model)
 
 #%%
 unpacked = []
@@ -170,9 +170,9 @@ for date in dates.strftime('%Y-%m-%d'):
     unpacked.append(vessel.to_GeoJSON(start_date, arrival_date, timestep))
 
 #%%
-f, ax = plot(unpacked[0]['features'], bbox)
+f, ax = plot(unpacked[3]['features'], bbox, show_route=True)
 plt.show()
 # %%
-f, ax = plot(single_result['features'], bbox)
+f, ax = plot(single_result['features'], bbox, show_route = True)
 plt.show()
 # %%

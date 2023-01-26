@@ -129,7 +129,7 @@ class Traverser:
 
 
 
-    def run(self, model_kwargs={}, chart_kwargs={}) -> Dict[str, Dict]:
+    def run(self, chart = None, model = None, model_kwargs={}, chart_kwargs={}) -> Dict[str, Dict]:
         """Generates a set of trajectories in a date range, with a certain launch day frequency for the vessels.
 
         Args:
@@ -143,11 +143,21 @@ class Traverser:
         # The chart object keeps track of the region of interest
         # and the wind/current data for that region
         # It is shared by all vessels
-        chart = Chart(self.bbox, self.start_date, self.end_date).load(self.data_directory, **chart_kwargs)
+        if not chart:
+            start_date = pd.to_datetime(date, infer_datetime_format=True)
+            end_date   = start_date + pd.Timedelta(self.duration, unit='days')
+            chart = Chart(self.bbox, start_date, end_date).load(self.data_directory, **chart_kwargs)
         
         # The model object describes the equations of movement and
         # traversal across the oceans over time
-        model = Model(self.duration, self.dt, **model_kwargs)
+        if not model:
+            model = Model(self.duration, self.timestep, **model_kwargs)
+
+#        chart = Chart(self.bbox, self.start_date, self.end_date).load(self.data_directory, **chart_kwargs)
+        
+        # The model object describes the equations of movement and
+        # traversal across the oceans over time
+#        model = Model(self.duration, self.dt, **model_kwargs)
 
         results = {}
         for date in self.dates[::self.launch_day_frequency]:
