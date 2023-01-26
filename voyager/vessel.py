@@ -104,7 +104,8 @@ class Vessel:
                          destination = destination, 
                          craft = kwargs['craft'], 
                          mode = kwargs['mode'],
-                         speed = kwargs['speed'])
+                         speed = kwargs['speed'],
+                         with_route = kwargs['with_route'])
 
         else:
 

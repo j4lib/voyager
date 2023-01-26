@@ -18,7 +18,8 @@ class Traverser:
                        end_date = '', 
                        launch_freq = 5, 
                        bbox = [], 
-                       departure_points = [], 
+                       departure_points = [],
+                       follows_route = False, 
                        data_directory = '', 
                        vessel_config='configs/vessels.yml') -> None:
 
@@ -27,6 +28,7 @@ class Traverser:
         self.duration   = duration
         self.dt         = timestep
         self.vessel_config = vessel_config
+        self.follows_route = follows_route
         # self.n_reps     = n_reps
 
         self.destination = destination
@@ -173,6 +175,7 @@ class Traverser:
                                             destination = self.destination, 
                                             speed = self.speed, 
                                             mode = self.mode,
+                                            with_route = self.follows_route,
                                             vessel_config=self.vessel_config)
             
             # Interpolate the data for only the duration specified

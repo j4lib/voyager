@@ -90,6 +90,7 @@ lon_max = 13.536054 #15
 lat_max = 59.388759 #60
 start_date = '2018-06-01'
 end_date = '2018-06-30'
+follows_route = False
 weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
@@ -141,7 +142,8 @@ single_result = voyager.Traverser.trajectory(mode = mode,
                                              departure_point = departure_points[0], 
                                              vessel_params=vessel_cfg,
                                              chart = chart, 
-                                             model = model)
+                                             model = model,
+                                             follows_route = follows_route)
 
 #%%
 traverser = voyager.Traverser(mode = mode,
@@ -155,7 +157,8 @@ traverser = voyager.Traverser(mode = mode,
                               bbox = bbox, 
                               departure_points = departure_points,
                               data_directory = data_directory,
-                              vessel_config=vessel_cfg_path)
+                              vessel_config=vessel_cfg_path,
+                              follows_route = follows_route)
 
 results = traverser.run(chart=chart, model=model)
 
@@ -163,14 +166,13 @@ results = traverser.run(chart=chart, model=model)
 unpacked = []
 dates = pd.date_range(start_date, end_date, freq=f'{launch_freq}d')
 
-#%%
 for date in dates.strftime('%Y-%m-%d'):
     vessel = results[date][0]
     arrival_date = pd.Timedelta(seconds = vessel.duration * timestep)
     unpacked.append(vessel.to_GeoJSON(start_date, arrival_date, timestep))
 
 #%%
-f, ax = plot(unpacked[3]['features'], bbox, show_route=True)
+f, ax = plot(unpacked[5]['features'], bbox, show_route=True)
 plt.show()
 # %%
 f, ax = plot(single_result['features'], bbox, show_route = True)
