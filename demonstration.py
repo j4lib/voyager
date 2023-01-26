@@ -88,7 +88,7 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '2018-06-27'
+start_date = '2018-06-01'
 end_date = '2018-06-30'
 weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
@@ -98,8 +98,8 @@ tolerance = 0.001
 sigma = 1000 # 100
 
 # Trajectory options
-launch_freq = 2 # days
-duration = 2 # max duration in days
+launch_freq = 5 # days
+duration = 30 # max duration in days
 timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
@@ -132,18 +132,34 @@ model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
 #%%
 # Calculate the trajectories
 
-results = voyager.Traverser.trajectory(
-                        mode = mode,
-                        craft = craft, 
-                        duration = duration,
-                        timestep = timestep, 
-                        destination = destination,  
-                        bbox = bbox, 
-                        departure_point = departure_points[0], 
-                        vessel_params=vessel_cfg,
-                        chart = chart, 
-                        model = model
-                    )
+# results = voyager.Traverser.trajectory(
+#                         mode = mode,
+#                         craft = craft, 
+#                         duration = duration,
+#                         timestep = timestep, 
+#                         destination = destination,  
+#                         bbox = bbox, 
+#                         departure_point = departure_points[0], 
+#                         vessel_params=vessel_cfg,
+#                         chart = chart, 
+#                         model = model
+#                     )
+
+#%%
+traverser = voyager.Traverser(mode = mode,
+                              craft = craft, 
+                              duration = duration,
+                              timestep = timestep, 
+                              destination = destination,  
+                              start_date = start_date,
+                              end_date = end_date,
+                              launch_freq = launch_freq,
+                              bbox = bbox, 
+                              departure_points = departure_points, 
+                              data_directory = data_directory,
+                              vessel_config=vessel_cfg_path)
+
+results = traverser.run()
 
 #%%
 f, ax = plot(results['features'], bbox)
