@@ -88,7 +88,7 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '2018-06-27'
+start_date = '2018-06-01'
 end_date = '2018-06-30'
 weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
@@ -98,11 +98,11 @@ tolerance = 0.001
 sigma = 1000 # 100
 
 # Trajectory options
-launch_freq = 2 # days
-duration = 2 # max duration in days
+launch_freq = 5 # days
+duration = 30 # max duration in days
 timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
-craft = 2 # the ones in the config
+craft = 'hjortspring' # the ones in the config
 destination = [6.6024, 58.0317]  # lon lat format
 departure_points = [[8.5237, 57.1407]] # 
 
@@ -142,8 +142,7 @@ results = voyager.Traverser.trajectory(
                         departure_point = departure_points[0], 
                         vessel_params=vessel_cfg,
                         chart = chart, 
-                        model = model,
-                        follows_route=True
+                        model = model
                     )
 
 #%%
