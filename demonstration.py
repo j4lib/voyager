@@ -30,7 +30,7 @@ def plot_contours(chart: voyager.Chart):
     return fig, ax
 
 def plot(geojson: Dict, bbox: List, show_route: bool = False, **kwargs):
-    """Utility function to statically visualize the calculated trajectories
+    """Utility function to statically visualize one of the calculated trajectories
 
         Args:
             trajectory_file (str, optional): The GeoJSON files with trajectories. Defaults to None.
@@ -72,6 +72,58 @@ def plot(geojson: Dict, bbox: List, show_route: bool = False, **kwargs):
 
     return fig, ax
 
+
+def plot_multiple(geojson_list: List[Dict], bbox: List, show_route: bool = False, **kwargs):
+    """Utility function to statically visualize all the calculated trajectories
+
+    Args:
+        geojson: List[Dict]
+        bbox: List
+        show_route: bool
+
+    Returns:
+        fig, ax: Matplotlib figure and axis tuples
+    """
+        
+    # Create matplotlib figure objects
+    fig, ax = plt.subplots(subplot_kw={'projection': cartopy.crs.PlateCarree()}, figsize=(20,10))
+
+    # Choose coastline resolution
+    ax.coastlines('50m')
+
+    # Limit map to bounding box
+    ax.set_extent([bbox[0], bbox[2], bbox[1], bbox[3]], cartopy.crs.PlateCarree())
+
+    # Add ocean and land features, for visuals
+    ax.add_feature(cartopy.feature.OCEAN, zorder=0)
+    ax.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
+
+    # Adds gridds to visual
+    ax.gridlines(crs=cartopy.crs.PlateCarree(), draw_labels=True,
+                  linewidth=2, color='gray', alpha=0.2, linestyle='--')
+
+    # calculate average duration:
+    durations = []
+    # Use geopandas built-in GeoJSON processing and visualization
+    for geojson in geojson_list:
+        df = geopandas.GeoDataFrame.from_features(geojson['features'])
+        df.plot(ax=ax, zorder=10, **kwargs)
+        durations.append(df.duration.values[0])
+
+    # Add departure point and destination
+    ax.scatter(x=departure_points[0][0], y=departure_points[0][1], color="red")
+    ax.scatter(x=destination[0], y=destination[1], color="green")
+
+    ax.set_title(f'Mean trip duration: {round(np.mean(durations), 2)} hours.')
+
+    if show_route == True:
+        df = geopandas.GeoDataFrame.from_features(geojson_list[0])
+        for i in range(len(df.route[0])):
+            ax.scatter(x=df.route[0][i][0], y=df.route[0][i][1], color="blue")
+
+    return fig, ax
+
+
 def load_yaml(file):
 
     with open(file, 'r') as file:
@@ -99,8 +151,8 @@ tolerance = 0.001
 sigma = 1000 # 100
 
 # Trajectory options
-launch_freq = 5 # days
-duration = 30 # max duration in days
+launch_freq = 3 # days
+duration = 10 # max duration in days
 timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
@@ -112,14 +164,16 @@ bbox = [lon_min, lat_min, lon_max, lat_max]
 
 # Convert time from datetime to timestamp
 start_date = pd.Timestamp(start_date)
+end_date = pd.Timestamp(end_date)
 
 # Read the vessel configurations
 vessel_cfg = load_yaml(vessel_cfg_path)
 
+
 #%%
 # Create the chart
 # Should possibly be pre-computed if computation is too slow
-chart = voyager.Chart(bbox, start_date, start_date+pd.Timedelta(duration, unit='days'))\
+chart = voyager.Chart(bbox, start_date, end_date)\
                     .load(data_directory, weights=weights, iterations=iterations)
 
 #f, ax = plot_contours(chart)
@@ -146,35 +200,26 @@ single_result = voyager.Traverser.trajectory(mode = mode,
                                              follows_route = follows_route)
 
 #%%
-traverser = voyager.Traverser(mode = mode,
-                              craft = craft, 
-                              duration = duration,
-                              timestep = timestep, 
-                              destination = destination,  
-                              start_date = start_date,
-                              end_date = end_date,
-                              launch_freq = launch_freq,
-                              bbox = bbox, 
-                              departure_points = departure_points,
-                              data_directory = data_directory,
-                              vessel_config=vessel_cfg_path,
-                              follows_route = follows_route)
-
-results = traverser.run(chart=chart, model=model)
-
+results = voyager.Traverser.trajectories(mode = mode,
+                                        craft = craft, 
+                                        duration = duration,
+                                        timestep = timestep, 
+                                        destination = destination,  
+                                        start_date = start_date,
+                                        end_date = end_date,
+                                        bbox = bbox, 
+                                        departure_point = departure_points[0],
+                                        vessel_params=vessel_cfg,
+                                        launch_day_frequency = launch_freq,
+                                        chart = chart, 
+                                        model = model,
+                                        follows_route = follows_route)
 #%%
-unpacked = []
-dates = pd.date_range(start_date, end_date, freq=f'{launch_freq}d')
-
-for date in dates.strftime('%Y-%m-%d'):
-    vessel = results[date][0]
-    arrival_date = pd.Timedelta(seconds = vessel.duration * timestep)
-    unpacked.append(vessel.to_GeoJSON(start_date, arrival_date, timestep))
-
-#%%
-f, ax = plot(unpacked[5]['features'], bbox, show_route=True)
+f, ax = plot_multiple(results, bbox, show_route=False)
 plt.show()
+
 # %%
-f, ax = plot(single_result['features'], bbox, show_route = True)
+f, ax = plot(results[9], bbox) #, show_route=True)
 plt.show()
+
 # %%
