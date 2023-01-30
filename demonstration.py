@@ -140,7 +140,7 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '2018-06-01'
+start_date = '2018-06-02'
 end_date = '2018-06-30'
 follows_route = False
 weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
@@ -169,15 +169,15 @@ end_date = pd.Timestamp(end_date)
 # Read the vessel configurations
 vessel_cfg = load_yaml(vessel_cfg_path)
 
-
 #%%
 # Create the chart
 # Should possibly be pre-computed if computation is too slow
 chart = voyager.Chart(bbox, start_date, end_date)\
                     .load(data_directory, weights=weights, iterations=iterations)
 
-#f, ax = plot_contours(chart)
-#plt.show()
+#%%
+# f, ax = plot_contours(chart)
+# plt.show()
 
 
 #%%  
