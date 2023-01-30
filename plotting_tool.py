@@ -1,7 +1,6 @@
 #%%
 import voyager
 import pandas as pd
-import yaml
 from typing import *
 
 import cartopy

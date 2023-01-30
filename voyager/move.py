@@ -322,47 +322,6 @@ class Displacement:
         self.dxy = dxy_sailing + dxy_c
 
         return self
- 
-
-    @staticmethod
-    def paddling_speed(w: np.ndarray, bearing: np.float64):
-        """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
-
-        Args:
-            w (np.ndarray): Wind velocity (two components)
-            bearig (np.float64): bearing of the boat (radiants)
-
-        Raises:
-            ValueError: Raised if the angle between the bearing and reference is a non-positive number
-            ValueError: Raised if the speed of the wind is higher than 30
-        """
-
-        polar_diagram = pd.read_csv('./voyager/configs/hjortspring_polar_paddling.txt', sep="\t", index_col=0)
-        
-        # angle between bearing and wind
-        bearing_decomposed = np.array([np.cos(bearing), np.sin(bearing)]).squeeze()
-        bearing_decomposed = bearing_decomposed.squeeze()
-        w = w.squeeze()
-
-        true_wind_angle = np.arctan2(np.linalg.det([bearing_decomposed, w]), np.dot(bearing_decomposed, w))
-        true_wind_angle = np.abs(np.rad2deg(true_wind_angle))
-
-        true_wind_speed = np.linalg.norm(w)
-
-        # round angle to next 10 and speed to next 5
-        if 0 <= true_wind_angle <= 180:
-            rounded_angle = math.ceil(true_wind_angle/10)*10
-        else:
-            ValueError(f"Wind angle is not between 0 and 180 ({true_wind_angle} deg)")
-        if 0 <= true_wind_speed <= 30:
-            rounded_speed = math.ceil(true_wind_speed/5)*5
-        else:
-            ValueError(f"Wind speed is too high ({true_wind_speed} m/s)")
-
-        speed = polar_diagram[str(rounded_speed)][rounded_angle]
-
-        return speed
-        
 
     @staticmethod
     def knots_to_si(knots: float) -> float:
@@ -389,6 +348,50 @@ class Displacement:
         """
 
         return si * 1.94
+
+    @staticmethod
+    def paddling_speed(w: np.ndarray, bearing: np.float64):
+        """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
+
+        Args:
+            w (np.ndarray): Wind velocity (two components)
+            bearig (np.float64): bearing of the boat (radiants)
+
+        Raises:
+            ValueError: Raised if the angle between the bearing and reference is a non-positive number
+            ValueError: Raised if the speed of the wind is higher than 30
+        """
+
+        polar_diagram = pd.read_csv('./voyager/configs/hjortspring_polar_paddling.txt', sep="\t", index_col=0)
+        
+        # angle between bearing and wind
+        bearing_decomposed = np.array([np.cos(bearing), np.sin(bearing)]).squeeze()
+        bearing_decomposed = bearing_decomposed.squeeze()
+        w = w.squeeze()
+
+        true_wind_angle = np.arctan2(np.linalg.det([bearing_decomposed, w]), np.dot(bearing_decomposed, w))
+        true_wind_angle = np.abs(np.rad2deg(true_wind_angle))
+
+        true_wind_speed = np.linalg.norm(w)
+        true_wind_speed_knots = Displacement.si_to_knots(true_wind_speed)
+
+        # round angle to next 10 and speed to next 5
+        if 0 <= true_wind_angle <= 180:
+            rounded_angle = math.ceil(true_wind_angle/10)*10
+        else:
+            raise ValueError(f"Wind angle is not between 0 and 180 ({true_wind_angle} deg)")
+        if 0 <= true_wind_speed_knots <= 30:
+            rounded_speed = math.ceil(true_wind_speed_knots/5)*5
+        elif true_wind_speed_knots > 30:
+            # TODO what if speed is too high? Set final speed of boat to zero, possibly
+            rounded_speed = 30
+        else:
+            raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
+
+        speed_in_knots = polar_diagram[str(rounded_speed)][rounded_angle]
+        speed = Displacement.knots_to_si(speed_in_knots)
+
+        return speed
 
     def with_uncertainty(self, sigma=1) -> np.ndarray:
         """Adds normal distributed noise to the current position.

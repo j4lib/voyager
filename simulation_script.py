@@ -57,6 +57,7 @@ vessel_cfg = load_yaml(vessel_cfg_path)
 chart = voyager.Chart(bbox, start_date, end_date).load(data_directory)
 model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
 
+# Run simulation
 results = voyager.Traverser.trajectories(mode = mode,
                                         craft = craft, 
                                         duration = duration,

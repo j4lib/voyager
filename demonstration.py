@@ -140,15 +140,15 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '2018-06-02'
-end_date = '2018-06-30'
+start_date = '2018-12-15'
+end_date = '2018-12-31'
 follows_route = False
 weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
 # Model options
 tolerance = 0.001
-sigma = 1000 # 100
+sigma = 0 # 100
 
 # Trajectory options
 launch_freq = 3 # days
@@ -219,7 +219,7 @@ f, ax = plot_multiple(results, bbox, show_route=False)
 plt.show()
 
 # %%
-f, ax = plot(results[9], bbox) #, show_route=True)
+f, ax = plot(results[4], bbox) #, show_route=True)
 plt.show()
 
 # %%
