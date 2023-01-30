@@ -2,6 +2,9 @@ import voyager
 import pandas as pd
 import yaml
 import json
+import matplotlib.pyplot as plt
+
+from plotting_tool import plot_multiple
 
 
 def load_yaml(file):
@@ -73,3 +76,6 @@ for result in results:
     filename = result['features'][0]['properties']['start_date']
     with open('./results/' + filename, 'w') as file:
         json.dump(result, file, indent=4)
+
+# plot_multiple(results, bbox, departure_points, destination)
+# plt.show()
