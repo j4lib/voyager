@@ -116,7 +116,8 @@ class Model:
             # Update vessel data
             vessel.update_distance(dx, dy)\
                   .update_position(longitude, latitude)\
-                  .update_mean_speed(self.dt)
+                  .update_mean_speed(self.dt)\
+                  .update_encountered_environment(c, w)
 
             # Check progress along route
             is_arrived = vessel.has_arrived(longitude, latitude, target_tol)

@@ -25,12 +25,13 @@ class Vessel:
         self.y = y
         self.speed = speed
         
-
         # Initialize parameters to save
         self.trajectory = [[self.x, self.y]]
         self.distance = 0
         self.mean_speed = 0
         self.duration = 0
+        self.encountered_current = []
+        self.encountered_winds = []
 
         self.route  = route
         self.route_taken = [[float(x),float(y)] for x,y in self.route]
@@ -190,6 +191,18 @@ class Vessel:
 
         return self
 
+    def update_encountered_environment(self, current: Tuple[float, float], wind: Tuple[float, float]):
+        """Updates the currents and winds encountered in the simulation.
+
+        Args:
+            current (List[float, float]): horizontal and vertical current at each update
+            wind (List[float, float]): horizontal and vertical wind at each update
+        """
+        self.encountered_current.append([current[0], current[1]])
+        self.encountered_winds.append([wind[0], wind[1]])
+
+        return self
+
     def has_arrived(self, longitude: float, latitude: float, target_tol: float) -> bool:
         """Calculates whether the vessel has arrived to its destination with in a certain tolerance.
 
@@ -256,7 +269,9 @@ class Vessel:
                     "mean_speed": self.mean_speed,
                     "destination": self.destination,
                     "route": self.route_taken,
-                    "duration": self.duration*dt / 3600 # in hours
+                    "duration": self.duration*dt / 3600, # in hours
+                    "trip_currents": self.encountered_current,
+                    "trip_winds": self.encountered_winds
                 }          
             }
         )

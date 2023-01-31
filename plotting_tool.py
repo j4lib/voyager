@@ -121,3 +121,4 @@ def plot_multiple(geojson_list: List[Dict], bbox: List, departure_points: List, 
             ax.scatter(x=df.route[0][i][0], y=df.route[0][i][1], color="blue")
 
     return fig, ax
+#%% 
