@@ -17,9 +17,10 @@ def load_yaml(file):
 
 data_directory = "D:/LIR/"
 vessel_cfg_path = "./voyager/configs/vessels.yml"
+replicates = 3
+
 
 # Chart options
-
 lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
@@ -58,25 +59,26 @@ chart = voyager.Chart(bbox, start_date, end_date).load(data_directory)
 model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
 
 # Run simulation
-results = voyager.Traverser.trajectories(mode = mode,
-                                        craft = craft, 
-                                        duration = duration,
-                                        timestep = timestep, 
-                                        destination = destination,  
-                                        start_date = start_date,
-                                        end_date = end_date,
-                                        bbox = bbox, 
-                                        departure_point = departure_points[0],
-                                        vessel_params=vessel_cfg,
-                                        launch_day_frequency = launch_freq,
-                                        chart = chart, 
-                                        model = model,
-                                        follows_route = follows_route)
+for replicate in range(1, replicates + 1):
+    results = voyager.Traverser.trajectories(mode = mode,
+                                            craft = craft, 
+                                            duration = duration,
+                                            timestep = timestep, 
+                                            destination = destination,  
+                                            start_date = start_date,
+                                            end_date = end_date,
+                                            bbox = bbox, 
+                                            departure_point = departure_points[0],
+                                            vessel_params=vessel_cfg,
+                                            launch_day_frequency = launch_freq,
+                                            chart = chart, 
+                                            model = model,
+                                            follows_route = follows_route)
 
-for result in results:
-    filename = result['features'][0]['properties']['start_date']
-    with open('./results/' + filename, 'w') as file:
-        json.dump(result, file, indent=4)
+    for result in results:
+        filename = result['features'][0]['properties']['start_date'] + f'_{replicate}'
+        with open('./results/' + filename, 'w') as file:
+            json.dump(result, file, indent=4)
 
 # plot_multiple(results, bbox, departure_points, destination)
 # plt.show()
