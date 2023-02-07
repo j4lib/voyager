@@ -1,7 +1,6 @@
 # Voyager ⛵
 Voyager is a tool for agent-based simulation of seafaring, improving on the work by Montenegro A., at Ohio State University. 
-The tool was developed at the Centre for Digital Humanities at the University of Gothenburg, with the objective of modelling ancient seafaring trajectories
-in Bronze Age Europe, as well as ocean crossings in the migrative periods.
+The tool was developed at the Gothenburg Research Infrastructure in Digital Humanities at the University of Gothenburg, with the objective of modelling ancient seafaring trajectories in Bronze Age Europe, as well as ocean crossings in the migrative periods.
 
 ## Overview
 Voyager is an agent-based simulation tool, simulating single agents representing sea vessels and their traversal of oceans due to a number of factors:
@@ -77,7 +76,7 @@ The demo generates two images illustrating a random sample trajectory in the Nor
 
 
 ## Author
-This package is currently maintained by Matteo Tomasini, for the [Centre for Digital Humanities](https://www.gu.se/en/digital-humanities) at the University of Gothenburg, and it is employed for the project Maritima Möten. The package was initially implemented and designed by Victor Wåhlstrand Skärström.
+This package is currently maintained by Matteo Tomasini, for the [Gothenburg Research Infrastructure in Digital Humanities](https://www.gu.se/en/digital-humanities) (GRIDH) at the University of Gothenburg, and it is employed for the project Maritima Möten. The package was initially implemented and designed by Victor Wåhlstrand Skärström.
 
 ## License
 This package is licensed with the MIT License.
