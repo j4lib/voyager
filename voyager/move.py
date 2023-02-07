@@ -230,7 +230,6 @@ class Displacement:
         Returns:
             Displacement: The Displacement instance
         """
-
         # Calculate the bearing from the current position to the target
         a = geo.bearing_from_lonlat(position, target)
         a = np.deg2rad(a)
@@ -349,8 +348,7 @@ class Displacement:
 
         return si * 1.94
 
-    @staticmethod
-    def paddling_speed(w: np.ndarray, bearing: np.float64):
+    def paddling_speed(self, w: np.ndarray, bearing: np.float64):
         """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
 
         Args:
@@ -362,7 +360,11 @@ class Displacement:
             ValueError: Raised if the speed of the wind is higher than 30
         """
 
-        polar_diagram = pd.read_csv('./voyager/configs/hjortspring_polar_paddling.txt', sep="\t", index_col=0)
+        try:
+            file_polar_diagram = f"./voyager/configs/hjortspring_speeds_{self.vessel.paddlers}pad_{self.vessel.weight}kg_{self.vessel.cadence}cad_{self.vessel.oar_depth}oars.txt"
+            polar_diagram = pd.read_csv(file_polar_diagram, sep="\t", index_col=0)
+        except:
+            raise ValueError(f"The file corresponding to this vessel was not found!")
         
         # angle between bearing and wind
         bearing_decomposed = np.array([np.cos(bearing), np.sin(bearing)]).squeeze()

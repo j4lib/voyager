@@ -156,6 +156,11 @@ duration = 10 # max duration in days
 timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
+vessel_weight = 2000 # in kg
+number_of_paddlers = 16
+rowing_cadence = 50
+oar_depth = 0 # if 0, there is no oar
+
 destination = [6.6024, 58.0317]  # lon lat format
 departure_points = [[8.5237, 57.1407]] # 
 
@@ -191,7 +196,11 @@ single_result = voyager.Traverser.trajectory(mode = mode,
                                              craft = craft, 
                                              duration = duration,
                                              timestep = timestep, 
-                                             destination = destination,  
+                                             destination = destination,
+                                             paddlers = number_of_paddlers,
+                                             weight = vessel_weight,
+                                             cadence = rowing_cadence,
+                                             oar_depth = oar_depth,   
                                              bbox = bbox, 
                                              departure_point = departure_points[0], 
                                              vessel_params=vessel_cfg,
@@ -205,6 +214,10 @@ results = voyager.Traverser.trajectories(mode = mode,
                                         duration = duration,
                                         timestep = timestep, 
                                         destination = destination,  
+                                        paddlers = number_of_paddlers,
+                                        weight = vessel_weight,
+                                        cadence = rowing_cadence,
+                                        oar_depth = oar_depth,   
                                         start_date = start_date,
                                         end_date = end_date,
                                         bbox = bbox, 

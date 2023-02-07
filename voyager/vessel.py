@@ -13,6 +13,10 @@ class Vessel:
                        destination = None,
                        launch_date = None,
                        speed = 0,
+                       paddlers = 0,
+                       weight = 0,
+                       cadence = 0,
+                       oar_depth = 0,
                        with_route = False,
                        params = {}
                        ):
@@ -24,6 +28,10 @@ class Vessel:
         self.x = x
         self.y = y
         self.speed = speed
+        self.paddlers = paddlers
+        self.weight = weight
+        self.cadence = cadence
+        self.oar_depth = oar_depth
         
         # Initialize parameters to save
         self.trajectory = [[self.x, self.y]]
@@ -106,6 +114,10 @@ class Vessel:
                          craft = kwargs['craft'], 
                          mode = kwargs['mode'],
                          speed = kwargs['speed'],
+                         paddlers = kwargs['paddlers'],
+                         weight = kwargs['weight'],
+                         cadence = kwargs['cadence'],
+                         oar_depth = kwargs['oar_depth'],
                          with_route = kwargs['with_route'])
 
         else:
