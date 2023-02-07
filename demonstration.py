@@ -181,8 +181,8 @@ chart = voyager.Chart(bbox, start_date, end_date)\
                     .load(data_directory, weights=weights, iterations=iterations)
 
 #%%
-f, ax = plot_contours(chart)
-plt.show()
+# f, ax = plot_contours(chart)
+# plt.show()
 
 
 #%%  
@@ -232,7 +232,7 @@ f, ax = plot_multiple(results, bbox, show_route=False)
 plt.show()
 
 # %%
-f, ax = plot(results[4], bbox) #, show_route=True)
+f, ax = plot(results[0], bbox) #, show_route=True)
 plt.show()
 
 # %%
