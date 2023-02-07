@@ -156,10 +156,10 @@ duration = 10 # max duration in days
 timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
-vessel_weight = 2000 # in kg
-number_of_paddlers = 16
-rowing_cadence = 50
-oar_depth = 0 # if 0, there is no oar
+vessel_weight = 3000 # in kg
+number_of_paddlers = 20
+rowing_cadence = 70
+oar_depth = 100 # in cm. If 0, there is no oar
 
 destination = [6.6024, 58.0317]  # lon lat format
 departure_points = [[8.5237, 57.1407]] # 

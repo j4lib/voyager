@@ -394,6 +394,8 @@ class Displacement:
             raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
 
         speed_in_knots = polar_diagram[str(rounded_speed)][rounded_angle]
+        # if speed_in_knots == 0.0:
+        #     speed_in_knots = 1.0
         speed = Displacement.knots_to_si(speed_in_knots)
 
         return speed
@@ -450,8 +452,6 @@ class Displacement:
         if not from_right:
             leeway_angle = -leeway_angle
 
-        # if leeway_angle >= 20.0:
-        #     leeway_angle = 0
         new_bearing = np.deg2rad(leeway_angle) + bearing
 
         return new_bearing
