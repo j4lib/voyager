@@ -236,7 +236,10 @@ class Displacement:
 
         # Get the displacement due to paddling towards the target
         if self.vessel.craft == 'hjortspring':
-            dxy_paddle = self.paddling_speed(w, a) * self.dt * np.array([-np.sin(a), np.cos(a)])
+            real_direction = self.paddling_leeway(w, a)
+
+            # the calculation of the paddling speed is done with comparison to the bearing, but movement is in the real_direction
+            dxy_paddle = self.paddling_speed(w, a) * self.dt * np.array([-np.sin(real_direction), np.cos(real_direction)])
         else:
             dxy_paddle = speed * self.dt * np.array([-np.sin(a), np.cos(a)])
 
@@ -394,6 +397,65 @@ class Displacement:
         speed = Displacement.knots_to_si(speed_in_knots)
 
         return speed
+
+
+    def paddling_leeway(self, w: np.ndarray, bearing: np.float64):
+        """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
+
+        Args:
+            w (np.ndarray): Wind velocity (two components)
+            bearing (np.float64): bearing of the boat (radiants)
+
+        Raises:
+            ValueError: Raised if the angle between the bearing and reference is a non-positive number
+            ValueError: Raised if the speed of the wind is higher than 30
+        """
+
+        try:
+            file_polar_diagram = f"./voyager/configs/hjortspring_leeway_{self.vessel.paddlers}pad_{self.vessel.weight}kg_{self.vessel.cadence}cad_{self.vessel.oar_depth}oars.txt"
+            polar_diagram = pd.read_csv(file_polar_diagram, sep="\t", index_col=0)
+        except:
+            raise ValueError(f"The file corresponding to this vessel was not found!")
+        
+        # angle between bearing and wind
+        bearing_decomposed = np.array([np.cos(bearing), np.sin(bearing)]).squeeze()
+        bearing_decomposed = bearing_decomposed.squeeze()
+        w = w.squeeze()
+
+        true_wind_angle = np.arctan2(np.linalg.det([bearing_decomposed, w]), np.dot(bearing_decomposed, w))
+        if np.rad2deg(true_wind_angle) >= 0:
+            from_right = True # mark if wind comes from the right, important to apply leeway!
+        else:
+            from_right = False
+        # then just
+        true_wind_angle = np.abs(np.rad2deg(true_wind_angle))
+
+        true_wind_speed = np.linalg.norm(w)
+        true_wind_speed_knots = Displacement.si_to_knots(true_wind_speed)
+
+        # round angle to next 10 and speed to next 5
+        if 0 <= true_wind_angle <= 180:
+            rounded_angle = math.ceil(true_wind_angle/10)*10
+        else:
+            raise ValueError(f"Wind angle is not between 0 and 180 ({true_wind_angle} deg)")
+        if 0 <= true_wind_speed_knots <= 30:
+            rounded_speed = math.ceil(true_wind_speed_knots/5)*5
+        elif true_wind_speed_knots > 30:
+            # TODO what if speed is too high? Set final speed of boat to zero, possibly
+            rounded_speed = 30
+        else:
+            raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
+
+        leeway_angle = polar_diagram[str(rounded_speed)][rounded_angle]
+        if not from_right:
+            leeway_angle = -leeway_angle
+
+        # if leeway_angle >= 20.0:
+        #     leeway_angle = 0
+        new_bearing = np.deg2rad(leeway_angle) + bearing
+
+        return new_bearing
+
 
     def with_uncertainty(self, sigma=1) -> np.ndarray:
         """Adds normal distributed noise to the current position.
