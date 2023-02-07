@@ -132,7 +132,7 @@ def load_yaml(file):
     return config
 
 #%%
-data_directory = "D:/LIR/"
+data_directory = "/media/mtomasini/LaCie/LIR/"
 vessel_cfg_path =  './voyager/configs/vessels.yml'
 
 # Chart options
@@ -140,7 +140,7 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '2018-12-15'
+start_date = '2018-12-01T12:00'
 end_date = '2018-12-31'
 follows_route = False
 weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
@@ -176,8 +176,8 @@ chart = voyager.Chart(bbox, start_date, end_date)\
                     .load(data_directory, weights=weights, iterations=iterations)
 
 #%%
-# f, ax = plot_contours(chart)
-# plt.show()
+f, ax = plot_contours(chart)
+plt.show()
 
 
 #%%  
