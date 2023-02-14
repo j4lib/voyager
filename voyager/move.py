@@ -394,8 +394,6 @@ class Displacement:
             raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
 
         speed_in_knots = polar_diagram[str(rounded_speed)][rounded_angle]
-        # if speed_in_knots == 0.0:
-        #     speed_in_knots = 1.0
         speed = Displacement.knots_to_si(speed_in_knots)
 
         return speed
@@ -425,11 +423,14 @@ class Displacement:
         w = w.squeeze()
 
         true_wind_angle = np.arctan2(np.linalg.det([bearing_decomposed, w]), np.dot(bearing_decomposed, w))
-        if np.rad2deg(true_wind_angle) >= 0:
-            from_right = True # mark if wind comes from the right, important to apply leeway!
-        else:
-            from_right = False
-        # then just
+        # if np.rad2deg(true_wind_angle) >= 0:
+        #     from_right = True # mark if wind comes from the right, important to apply leeway!
+        # else:
+        #     from_right = False
+
+        # find the wind_sign, will be used in leeway_angle to apply the correct angle to leeway.
+        wind_sign = np.sign(true_wind_angle)
+        # # then just
         true_wind_angle = np.abs(np.rad2deg(true_wind_angle))
 
         true_wind_speed = np.linalg.norm(w)
@@ -448,9 +449,7 @@ class Displacement:
         else:
             raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
 
-        leeway_angle = polar_diagram[str(rounded_speed)][rounded_angle]
-        if not from_right:
-            leeway_angle = -leeway_angle
+        leeway_angle = -wind_sign*polar_diagram[str(rounded_speed)][rounded_angle]
 
         new_bearing = np.deg2rad(leeway_angle) + bearing
 
