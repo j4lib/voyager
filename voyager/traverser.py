@@ -127,7 +127,8 @@ class Traverser:
                                       params = vessel_params[mode][craft])
 
         # Interpolate the data for only the duration specified
-        chart.interpolate(chart.start_date, duration)
+        start_date = utils.calculate_sunrise(chart.start_date, departure_point)
+        chart.interpolate(start_date, duration)
 
         # Use the interpolated values in the model
         model.use(chart)
@@ -135,8 +136,8 @@ class Traverser:
         # Run the model
         vessel = model.run(vessel)
 
-        start_date_str = chart.start_date.strftime('%Y-%m-%d')
-        stop_date_str  = (chart.start_date + pd.Timedelta(len(vessel.trajectory)*timestep, unit='s')).strftime('%Y-%m-%d')
+        start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%S')
+        stop_date_str  = (start_date + pd.Timedelta(len(vessel.trajectory)*timestep, unit='s')).strftime('%Y-%m-%dT%H:%M:%S')
 
         return vessel.to_GeoJSON(start_date_str, stop_date_str, timestep)
 
@@ -185,6 +186,9 @@ class Traverser:
                                             with_route = self.follows_route,
                                             vessel_config=self.vessel_config)
             
+            # Calculate sunrise
+            date = utils.calculate_sunrise(date, self.departure_points[0])
+
             # Interpolate the data for only the duration specified
             chart.interpolate(date, self.duration)
 
@@ -198,7 +202,7 @@ class Traverser:
                 trajectories.append(model.run(vessel))
 
             # Add the trajectories for the date
-            results.update({date.strftime('%Y-%m-%d'): trajectories})
+            results.update({date.strftime('%Y-%m-%dT%H:%M:%S'): trajectories})
 
         return results
 
@@ -321,6 +325,9 @@ class Traverser:
 
         results = []
         for date in dates[::launch_day_frequency]:
+            # Calculate sunrise
+            date = utils.calculate_sunrise(date, departure_point)
+
             vessel = Vessel.from_position(departure_point, 
                                           craft = craft,
                                           chart = chart,
@@ -334,6 +341,7 @@ class Traverser:
                                           with_route = follows_route,
                                           params = vessel_params[mode][craft])
 
+
             # Interpolate the data for only the duration specified
             chart.interpolate(date, duration)
 
@@ -343,8 +351,8 @@ class Traverser:
             # Run the model
             vessel = model.run(vessel)
 
-            start_date_str = date.strftime('%Y-%m-%d')
-            stop_date_str  = (date + pd.Timedelta(vessel.duration*timestep, unit='s')).strftime('%Y-%m-%d')
+            start_date_str = date.strftime('%Y-%m-%dT%H:%M:%S')
+            stop_date_str  = (date + pd.Timedelta(vessel.duration*timestep, unit='s')).strftime('%Y-%m-%dT%H:%M:%S')
 
             results.append(vessel.to_GeoJSON(start_date_str, stop_date_str, timestep))
 

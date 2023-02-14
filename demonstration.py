@@ -151,7 +151,7 @@ tolerance = 0.001
 sigma = 0 # 100
 
 # Trajectory options
-launch_freq = 3 # days
+launch_freq = 4 # days
 duration = 10 # max duration in days
 timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
@@ -162,13 +162,14 @@ rowing_cadence = 70
 oar_depth = 100 # in cm. If 0, there is no oar
 
 destination = [6.6024, 58.0317]  # lon lat format
-departure_points = [[8.5237, 57.1407]] # 
+departure_points = [[8.5693, 57.1543]] # 
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
 
 # Convert time from datetime to timestamp
 start_date = pd.Timestamp(start_date)
+#start_date = voyager.utils.calculate_sunrise(start_date, departure_points[0])
 end_date = pd.Timestamp(end_date)
 
 # Read the vessel configurations
@@ -200,7 +201,7 @@ single_result = voyager.Traverser.trajectory(mode = mode,
                                              paddlers = number_of_paddlers,
                                              weight = vessel_weight,
                                              cadence = rowing_cadence,
-                                             oar_depth = oar_depth,   
+                                             oar_depth = oar_depth,
                                              bbox = bbox, 
                                              departure_point = departure_points[0], 
                                              vessel_params=vessel_cfg,

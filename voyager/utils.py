@@ -5,6 +5,7 @@ import glob
 import xarray as xr
 import pandas as pd
 from typing import *
+import ephem
 
 def lonlat_from_displacement(dx: float, dy: float, origin: Tuple[float, float]) -> Tuple[float, float]:
     """Calculate a new longitude and latitude from a displacement from an origin, using the Great Circle Approximation.
@@ -136,3 +137,46 @@ def load_data(start: pd.Timestamp, end: pd.Timestamp, bbox: List, data_directory
 
     data = data.sel(time=slice(start, end)).load()
     return data.u, data.v
+
+def calculate_sunrise(date: pd.Timestamp, position: Tuple[float, float]):
+    """Calculates the time of sunrise based on date, longitude and latitude, using the ephem package.
+
+    Args:
+        date (pd.Timestamp): day of the year
+        position (Tuple[float, float]): place in format [longitude, latitude]
+
+    Returns:
+        pd.Timestamp: full date and time of sunrise on chosen day
+    """
+    earth = ephem.Observer()
+    earth.lon = str(position[0])
+    earth.lat = str(position[1])
+    earth.date = date
+
+    sun = ephem.Sun()
+    sun.compute()
+
+    sunrise = ephem.localtime(earth.next_rising(sun))
+    return pd.Timestamp(sunrise)
+
+
+def calculate_sunset(date: pd.Timestamp, position: Tuple[float, float]):
+    """Calculates the time of sunset based on date, longitude and latitude, using the ephem package.
+
+    Args:
+        date (pd.Timestamp): day of the year
+        position (Tuple[float, float]): place in format [longitude, latitude]
+
+    Returns:
+        pd.Timestamp: full date and time of sunset on chosen day
+    """
+    earth = ephem.Observer()
+    earth.lon = str(position[0])
+    earth.lat = str(position[1])
+    earth.date = date
+
+    sun = ephem.Sun()
+    sun.compute()
+
+    sunset = ephem.localtime(earth.next_setting(sun))
+    return pd.Timestamp(sunset)

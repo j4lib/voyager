@@ -56,7 +56,7 @@ class Chart:
                                                                     source="winds")
 
 
-        map          = self.u_current_all.sel(time=self.start_date)
+        map          = self.u_current_all.sel(time=self.start_date, method="nearest")
 
         self.longitudes = map.longitude.values
         self.latitudes  = map.latitude.values
