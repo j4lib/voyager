@@ -325,6 +325,8 @@ class Traverser:
 
         results = []
         for date in dates[::launch_day_frequency]:
+            # FIXME currently if a date of launch is at the end of the specified period, interpolation of values risks to be out of domain!
+
             # Calculate sunrise
             date = utils.calculate_sunrise(date, departure_point)
 
