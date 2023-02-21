@@ -3,9 +3,9 @@ import pandas as pd
 import yaml
 import json
 import matplotlib.pyplot as plt
+import time
 
 from plotting_tool import plot_multiple
-
 
 def load_yaml(file):
 
@@ -25,7 +25,7 @@ lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '1993-01-01'
+start_date = '1993-01-02' # starting on Jan 2, since Jan 1 has data starting only at noon
 end_date = '1994-12-31'
 
 # Model options
@@ -54,53 +54,61 @@ bbox = [lon_min, lat_min, lon_max, lat_max]
 
 # Convert time from datetime to timestamp
 start_date = pd.Timestamp(start_date)
-end_date = pd.Timestamp(end_date)
+end_date = pd.Timestamp(end_date) # end date is the last date we will simulate
+
+simulated_dates = pd.date_range(start_date, end_date, freq = f'{launch_freq}D')
 
 # Read the vessel configurations
 vessel_cfg = load_yaml(vessel_cfg_path)
 
-# Create chart
-chart = voyager.Chart(bbox, start_date, end_date + pd.Timedelta(duration, unit="days")).load(data_directory)
-model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
-
 # Run simulation
+start_time = time.time()
 for replicate in range(1, replicates + 1):
-
+    # create empty dataframe for aggregates
     avg_durations = pd.DataFrame(columns = ['Start day', 'Duration', 'Sunrise', 'Sunset'])
 
-    results = voyager.Traverser.trajectories(mode = mode,
-                                            craft = craft, 
-                                            duration = duration,
-                                            timestep = timestep, 
-                                            destination = destination, 
-                                            paddlers = number_of_paddlers,
-                                            weight = vessel_weight,
-                                            cadence = rowing_cadence,
-                                            oar_depth = oar_depth,    
-                                            start_date = start_date,
-                                            end_date = end_date,
-                                            bbox = bbox, 
-                                            departure_point = departure_points[0],
-                                            vessel_params=vessel_cfg,
-                                            launch_day_frequency = launch_freq,
-                                            chart = chart, 
-                                            model = model,
-                                            follows_route = follows_route)
+    for date in simulated_dates:
+        stop_date = date + pd.Timedelta(duration, unit="days") # date at which the replicate stops
 
-    for result in results:
-        start_day = result['features'][0]['properties']['start_date'][:-9]
+        # Create chart
+        chart = voyager.Chart(bbox, date, stop_date).load(data_directory)
+        model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
 
-        filename = start_day + f'_{replicate}'
+        trajectory = voyager.Traverser.trajectory(mode = mode,
+                                                craft = craft, 
+                                                duration = duration,
+                                                timestep = timestep, 
+                                                destination = destination, 
+                                                paddlers = number_of_paddlers,
+                                                weight = vessel_weight,
+                                                cadence = rowing_cadence,
+                                                oar_depth = oar_depth,    
+                                                bbox = bbox, 
+                                                departure_point = departure_points[0],
+                                                vessel_params=vessel_cfg,
+                                                chart = chart, 
+                                                model = model,
+                                                follows_route = follows_route)
+        
+        filename = date.strftime('%Y-%m-%d') + f'_{replicate}'
         with open('./results/' + filename, 'w') as file:
-            json.dump(result, file, indent=4)
+            json.dump(trajectory, file, indent=4)
 
         data_to_append = pd.DataFrame([{
-             'Start day': start_day,
-             'Duration': result['features'][0]['properties']['duration'],
-             'Sunrise': voyager.utils.calculate_sunrise(start_day, departure_points[0]),
-             'Sunset': voyager.utils.calculate_sunrise(start_day, departure_points[0])
+             'Start day': date,
+             'Duration': trajectory['features'][0]['properties']['duration'],
+             'Sunrise': voyager.utils.calculate_sunrise(date, departure_points[0]),
+             'Sunset': voyager.utils.calculate_sunset(date, departure_points[0])
         }])
 
         avg_durations = pd.concat([avg_durations, data_to_append], ignore_index=True)
 
     avg_durations.to_csv(f'./results/Aggregates/replicate_{replicate}.csv', sep='\t')
+
+end_time = time.time()
+total_time = end_time - start_time
+total_time = time.strftime("%H:%M:%S", time.gmtime(total_time))
+
+print("It took " + total_time + " to perform this simulation.")
+
+# TODO create function to generate .csv file: IF the file for the replicate already exists, append. Otherwise, write it up.
