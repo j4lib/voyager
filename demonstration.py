@@ -140,10 +140,10 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1995-12-01'
-end_date = '1995-12-31'
+start_date = '1995-03-01'
+end_date = '1995-03-31'
 follows_route = False
-weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
+weights = [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
 # Model options
@@ -151,7 +151,7 @@ tolerance = 0.001
 sigma = 0 # 100
 
 # Trajectory options
-launch_freq = 4 # days
+launch_freq = 3 # days
 duration = 10 # max duration in days
 timestep = 900 # s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
@@ -162,7 +162,7 @@ rowing_cadence = 70
 oar_depth = 100 # in cm. If 0, there is no oar
 
 destination = [6.6024, 58.0317]  # lon lat format
-departure_points = [[8.5693, 57.1543]] # 
+departure_points = [[8.0888, 56.7981]] #[[8.5693, 57.1543]] # 
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
@@ -178,8 +178,9 @@ vessel_cfg = load_yaml(vessel_cfg_path)
 #%%
 # Create the chart
 # Should possibly be pre-computed if computation is too slow
-chart = voyager.Chart(bbox, start_date, end_date)\
+chart = voyager.Chart(bbox, start_date, end_date + pd.Timedelta(duration, unit="days"))\
                     .load(data_directory, weights=weights, iterations=iterations)
+
 
 #%%
 # f, ax = plot_contours(chart)
@@ -233,7 +234,7 @@ f, ax = plot_multiple(results, bbox, show_route=False)
 plt.show()
 
 # %%
-f, ax = plot(single_result, bbox) #, show_route=True)
+f, ax = plot(single_result, bbox, show_route=False) #, show_route=True)
 plt.show()
 
 # %%
