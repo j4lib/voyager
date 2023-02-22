@@ -1,3 +1,4 @@
+import os
 import voyager
 import pandas as pd
 import yaml
@@ -25,8 +26,8 @@ lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '1993-01-02' # starting on Jan 2, since Jan 1 has data starting only at noon
-end_date = '1994-12-31'
+start_date = '1996-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
+end_date = '1998-12-31'
 
 # Model options
 tolerance = 0.001
@@ -91,7 +92,7 @@ for replicate in range(1, replicates + 1):
                                                 follows_route = follows_route)
         
         filename = date.strftime('%Y-%m-%d') + f'_{replicate}'
-        with open('./results/' + filename, 'w') as file:
+        with open(data_directory + '/results/Experiment1A/' + filename, 'w') as file:
             json.dump(trajectory, file, indent=4)
 
         data_to_append = pd.DataFrame([{
@@ -103,7 +104,11 @@ for replicate in range(1, replicates + 1):
 
         avg_durations = pd.concat([avg_durations, data_to_append], ignore_index=True)
 
-    avg_durations.to_csv(f'./results/Aggregates/replicate_{replicate}.csv', sep='\t')
+    if os.path.exists(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv'):
+        avg_durations.to_csv(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv', mode='a', sep='\t', header=False, index=False)
+    else:
+        avg_durations.to_csv(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv', mode='w', sep='\t', header=True, index=False)
+
 
 end_time = time.time()
 total_time = end_time - start_time
