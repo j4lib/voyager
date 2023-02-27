@@ -140,7 +140,7 @@ lon_max = 13.536054 #15
 lat_max = 59.388759 #60
 start_date = '1995-03-01'
 end_date = '1995-03-31'
-follows_route = False
+follows_route = True
 weights = [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
 
@@ -232,7 +232,7 @@ f, ax = plot_multiple(results, bbox, show_route=False)
 plt.show()
 
 # %%
-f, ax = plot(single_result, bbox, show_route=False) #, show_route=True)
+f, ax = plot(single_result, bbox, show_route=follows_route) #, show_route=True)
 plt.show()
 
 # %%
