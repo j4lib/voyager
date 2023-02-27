@@ -11,8 +11,6 @@ import numpy as np
 import matplotlib.colors as colors
 
 def plot_contours(chart: voyager.Chart):
-
-
     data = chart.grid.weighted_mask
     data[np.isnan(data)] = 1000
     # data = chart.grid.weighted_mask
