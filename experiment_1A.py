@@ -36,16 +36,16 @@ follows_route = False
 
 # Trajectory options
 launch_freq = 1 # days
-duration = 3 # max duration in days
+duration = 5 # max duration in days
 timestep = 900 # in seconds, 900 s = 15 minutes
 mode = 'paddling'
 craft = 'hjortspring' # the ones in the config
-vessel_weight = 3000 # in kg
-number_of_paddlers = 20
-rowing_cadence = 70
-oar_depth = 100 # in cm. If 0, there is no oar
+vessel_weight = 2000 # in kg
+number_of_paddlers = 16
+rowing_cadence = 50
+oar_depth = 0 # in cm. If 0, there is no oar
 
-destination = [6.6024, 58.0317]  # lon lat format
+destination = [6.4902, 58.0128]  # lon lat format
 departure_points = [[8.5693, 57.1543]] # 
 
 ##### SIMULATION INITIALIZATION

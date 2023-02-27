@@ -46,7 +46,7 @@ rowing_cadence = 70
 oar_depth = 100 # in cm. If 0, there is no oar
 
 destination = [8.5693, 57.1543]  # lon lat format
-departure_points = [[6.6024, 58.0317]] # 
+departure_points = [[6.4902, 58.0128]] # 
 
 ##### SIMULATION INITIALIZATION
 
