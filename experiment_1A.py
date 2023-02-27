@@ -20,14 +20,13 @@ data_directory = "/media/mtomasini/LaCie/LIR/"
 vessel_cfg_path = "./voyager/configs/vessels.yml"
 replicates = 1
 
-
 # Chart options
 lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '2004-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
-end_date = '2020-12-31'
+start_date = '1993-01-02' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
+end_date = '1999-12-31'
 
 # Model options
 tolerance = 0.001
@@ -115,5 +114,3 @@ total_time = end_time - start_time
 total_time = time.strftime("%H:%M:%S", time.gmtime(total_time))
 
 print("It took " + total_time + " to perform this simulation.")
-
-# TODO create function to generate .csv file: IF the file for the replicate already exists, append. Otherwise, write it up.
