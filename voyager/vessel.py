@@ -32,6 +32,7 @@ class Vessel:
         self.weight = weight
         self.cadence = cadence
         self.oar_depth = oar_depth
+        self.with_route = with_route
         
         # Initialize parameters to save
         self.trajectory = [[self.x, self.y]]
@@ -230,8 +231,11 @@ class Vessel:
         is_close = geo.distance((longitude, latitude), self.target) <= target_tol
 
         if is_close:
-            if len(self.route) > 0:
-                self.target = self.route.pop()
+            if self.with_route:
+                if len(self.route) > 0:
+                    self.target = self.route.pop()
+                else:
+                    return True
             else:
                 return True
         else:
