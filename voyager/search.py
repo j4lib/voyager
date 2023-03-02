@@ -1,3 +1,17 @@
+"""Searching algorithms
+
+This script contains tools to calculate paths and routes through a simulation.
+
+This file can be imported as module and contains the following functions:
+    * heuristic - Generic measure between two positions
+And the following classes:
+    * Grid - represents the map as an approximately equidistant grid
+    * WeightedGrid - inherits from Grid, used to symbolize a map where not all positions are equally likely to traverse
+    * PriorityQueue - used in A-star algorithm to deal with queues and stacking
+    * Astar - implementation of A-star algorithm
+"""
+
+
 from typing import Dict, Tuple, List, Iterator, Optional, TypeVar
 import heapq
 import numpy as np
@@ -24,9 +38,23 @@ def heuristic(a: Position, b: Position) -> float:
 class Grid:
     """
     Represents the map as an approximately equidistant grid, with methods to find if
-    the current position is in bounds, if there are obstacles "walls", and which are the closest places to go,
+    the current position is in bounds, if there are obstacles "walls", and which are the closest places to go.
+
+    Attributes:
+        width (int): width of the grid
+        height (int): height of the grid
+        walls (Position): walls of the map, defined as unpassable steps in the A-star algorithm
+    Methods:
+        in_bounds(id): Checks if the current position is in bounds
+        passable(id): Checks if current position has any obstacles around (walls)
+        neighbors(id): Calculates all traversable neighbors of a current position
     """
     def __init__(self, width: int, height: int):
+        """
+        Args:
+            width (int): width of map
+            height (int): height of map
+        """
         self.width = width
         self.height = height
         self.walls: List[Position] = []
@@ -79,6 +107,15 @@ class WeightedGrid(Grid):
     """
     The WeightedGrid is a Grid used to symbolize a map where not all positions are equally likely to traverse. Some are more likely,
     these regions being weighted.
+
+    Attributes:
+        weights: weights of different points of the Grid.
+        weigthed_mask: mask to superpose on Grid with weights.
+    Methods:
+        cost(from_node, to_node): calculate cost of movement between two points
+        from_map(map, **kwargs): class method to generate WeightedGrid from an array where land is marked
+        create_shoreline_contour(mask, weights=[5, 0.5], iterations=[1, 4], kernel_size=3): creates weighted shoreline contours for the map.
+        mask_to_graph(mask): superposes mask on Grid.
     """
 
 
@@ -150,11 +187,26 @@ class WeightedGrid(Grid):
 
     @staticmethod
     def mask_to_graph(mask):
+        """Superposes mask on Grid.
+        Args:
+            mask (np.ndarray): mask with weights to be superposed on Grid.
+        Returns:
+            np.ndarray: array with weighted Grid
+        """
 
         return {index: value for index, value in np.ndenumerate(mask) if not np.isnan(value)}
 
 
 class PriorityQueue:
+    """Class to define PriorityQueue (used in Astar).
+
+    Attributes:
+        elements (List[Tuple[float, T]]): elements a queue used to check points in A-star algorithm.
+    Methods:
+        empty(): return True if self.elements is empty.
+        put(item, priority): insert new element in priority list
+        get: return weight for iteration step
+    """
     def __init__(self):
         self.elements: List[Tuple[float, T]] = []
     
@@ -168,9 +220,14 @@ class PriorityQueue:
         return heapq.heappop(self.elements)[1]
 
 class Astar:
-    # Algorithm idea:
-    # A traversal graph of the map is the set of indices on the mask of the map.
-    # Distance is calculated per 
+    """Implementation of A-star algorithm (see e.g. https://en.wikipedia.org/wiki/A*_search_algorithm)
+    
+    Attributes:
+        graph (WeightedGrid): weighted graph over which to perform the search
+    Methods:
+        search(start, goal): find a route from a start position to a goal position
+        recontruct_path(came_from, start, goal): reconstruct the route from the graph pointing to previous positions.
+    """
 
     def __init__(self, graph: WeightedGrid) -> None:
         
