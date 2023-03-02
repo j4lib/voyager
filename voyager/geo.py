@@ -9,6 +9,7 @@ This file can be imported as module and contains the following functions:
     * geodesic - algorithm to calculate displacement using a geodesic approach
     * great_circle - algorithm to calculate displacement using a great circle approach
     * distance - calculates distance in km between two lon/lat points
+    * distance_from_displacement - gives distance along a displacement
     * bearing_from_displacement - gives direction of a given displacement (in degrees with respect to North) 
     * bearing_from_lonlat - gives angle between a coordinate and a target (in degrees with respect to North) 
 """
@@ -41,7 +42,7 @@ def lonlat_from_displacement(dx: float, dy: float, origin: Tuple[float, float], 
     Args:
         dx (float): displacement in km along the x axis
         dy (float): displacement in km along the y axis
-        origin (Tuple[float, float]): starting point of displacement
+        origin (Tuple[float, float]): starting point of displacement as [lon, lat]
         method (str): either 'geodesic' or 'great_circle', determines algorithm to use to calculate coordinates
     
     Raises:
@@ -71,7 +72,7 @@ def geodesic(dx: float, dy: float, origin: Tuple[float, float]) -> Tuple[float, 
     Args: 
         dx (float): displacement in km along the x axis
         dy (float): displacement in km along the y axis
-        origin (Tuple[float, float]): starting point of displacement
+        origin (Tuple[float, float]): starting point of displacement as [lon, lat]
 
     Returns:
         Tuple[float, float]: longitude and latitude of point reached after displacement with geodesic.
@@ -99,7 +100,7 @@ def great_circle(dx: float, dy: float, origin: Tuple[float, float]) -> Tuple[flo
     Args: 
         dx (float): displacement in km along the x axis
         dy (float): displacement in km along the y axis
-        origin (Tuple[float, float]): starting point of displacement
+        origin (Tuple[float, float]): starting point of displacement as [lon, lat]
 
     Returns:
         Tuple[float, float]: longitude and latitude of point reached after displacement with great circle.
@@ -115,17 +116,39 @@ def great_circle(dx: float, dy: float, origin: Tuple[float, float]) -> Tuple[flo
     return new_longitude.item(), new_latitude.item()
 
 
-def distance(origin: Tuple[float, float], target: Tuple[float, float]):
-    """Calculates distance in km between two lon/lat points
+def distance(origin: Tuple[float, float], target: Tuple[float, float]) -> float:
+    """Calculates distance in km between two lon/lat points, in km
 
+    Args:
+        origin (Tuple[float, float]): point of origin as [lon, lat]
+        target (Tuple[float, float]): point of destination as [lon, lat]
+
+    Returns:
+        float: distance between origin and target
     """
     return gp.distance(gp.lonlat(*origin), gp.lonlat(*target)).km
 
-def distance_from_displacement(dx, dy):
+def distance_from_displacement(dx: float, dy: float) -> float:
+    """Gives distance along a displacement
+
+    Args:
+        dx (float): displacement in km along the x axis
+        dy (float): displacement in km along the y axis
+    Returns:
+        float: distance over a displacement
+    """
 
     return np.linalg.norm(np.array((dx, dy)))
 
-def bearing_from_displacement(dx, dy):
+def bearing_from_displacement(dx: float, dy: float) -> float:
+    """Gives direction of a given displacement (in degrees with respect to North) 
+    
+    Args:
+        dx (float): displacement in km along the x axis
+        dy (float): displacement in km along the y axis
+    Returns:
+        float: angle (in degrees) of a displacement on the map 
+    """
 
     angle = np.rad2deg(np.arctan2(dy, dx))
 
@@ -133,7 +156,15 @@ def bearing_from_displacement(dx, dy):
 
     return bearing
 
-def bearing_from_lonlat(position: np.ndarray, target: np.ndarray):
+def bearing_from_lonlat(position: np.ndarray, target: np.ndarray) -> float:
+    """Gives angle between a coordinate and a target (in degrees with respect to North) 
+
+    Args:
+        dx (float): displacement in km along the x axis
+        dy (float): displacement in km along the y axis
+    Returns:
+        float: bearing (angle) between a position and a target in degrees
+    """
 
     lat_pos = np.deg2rad(position[1])
     lat_tgt = np.deg2rad(target[1])

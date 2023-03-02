@@ -26,8 +26,8 @@ lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '2004-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
-end_date = '2005-12-31'
+start_date = '2006-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
+end_date = '2009-12-31'
 
 # Model options
 tolerance = 0.001
