@@ -5,8 +5,36 @@ import math
 from typing import *
 
 class Displacement:
+    """A class used to represent a displacement on a Chart object.
 
+    Attributes:
+        vessel (Vessel): the Vessel object that is displaced
+        dt (float): the time step between displacements
+        dxy Tuple[float, float]: displacement in km on the x and y axis
+    Methods:
+        move(c, w): Creates the displacement due to current and wind velocity
+        leeway_displacement(w, Sl, Yt, dt): calculates the leeway displacement from vessel parameters and wind speed
+        leeway_velocity(w, Sl, Yt): calculates the leeway wind velocity from vessel parameters and wind speed
+        levison_leeway_displacement(w, dt): calculates the displacement due to leeway forces, using the Levison method.
+        rotate(x, angle): rotates an array x by a certain angle
+        from_drift(self, c: np.ndarray, w: np.ndarray): Generate displacement due to only drifting with the winds and currents.
+        from_paddling(c, w, position, target, speed): Generate displacement due to paddling with a certain paddling speed, as well as environmental factors from currents and winds.
+        from_sailing(c, w, position, target): Generate displacement due to sailing, reinforcing the wind speed contribution over the currents.
+        knots_to_si(knots): Converts knots to SI units (m/s)
+        si_to_knots(si): Converts SI units (m/s) to knots
+        paddling_speed(w, bearing): Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
+        paddling_leeway(w, bearing): Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
+        with_uncertainty(sigma=1): Adds normal distributed noise to the current position.
+        km(): Returns the displacement in kilometres, from metres.
+        to_lonlat(dx, dy, longitude, latitude): Convenience function to convert a displacement into longitude and latitude
+
+    """
     def __init__(self, vessel, dt) -> None:
+        """
+        Args:
+            vessel (Vessel): the Vessel object that is displaced
+            dt (float): the time step between displacements
+        """
         super().__init__()
 
         self.vessel = vessel
@@ -157,6 +185,14 @@ class Displacement:
 
     @staticmethod
     def rotate(x: np.ndarray, angle: float) -> np.ndarray:
+        """Rotates an array x by a certain angle.
+
+        Args: 
+            x: array to rotate
+            angle: angle of rotation
+        Returns:
+            np.ndarray: rotate array
+        """
 
         r = np.array(( 
                     (np.cos(angle), -np.sin(angle)),
@@ -352,7 +388,7 @@ class Displacement:
         return si * 1.94
 
     def paddling_speed(self, w: np.ndarray, bearing: np.float64):
-        """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
+        """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s), when existing.
 
         Args:
             w (np.ndarray): Wind velocity (two components)
@@ -400,7 +436,7 @@ class Displacement:
 
 
     def paddling_leeway(self, w: np.ndarray, bearing: np.float64):
-        """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
+        """Calculates the paddling speed according to Wolfson Unit diagrams (in m/s), when existing.
 
         Args:
             w (np.ndarray): Wind velocity (two components)
