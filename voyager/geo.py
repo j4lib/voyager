@@ -1,3 +1,19 @@
+"""Geographic tools
+
+This script contains tools to calculate different geographic quantities in the simulation. 
+It requires that the packages geopy.distance and numpy be installed within the Python environment.
+
+This file can be imported as module and contains the following functions:
+    * closest_coordinate_index - returns the index of the array closest to the given coordinate
+    * lonlat_from_displacement - calculates new coordinates after displacement, given an origin
+    * geodesic - algorithm to calculate displacement using a geodesic approach
+    * great_circle - algorithm to calculate displacement using a great circle approach
+    * distance - calculates distance in km between two lon/lat points
+    * bearing_from_displacement - gives direction of a given displacement (in degrees with respect to North) 
+    * bearing_from_lonlat - gives angle between a coordinate and a target (in degrees with respect to North) 
+"""
+
+
 import geopy.distance as gp
 import numpy as np
 import math
@@ -5,7 +21,14 @@ from typing import *
 
 
 def closest_coordinate_index(array, value):
+    """Function to find the index of the closes coordinate.
 
+    Args:
+        array (array): array of either latitudes or longitudes (see Chart)
+        value (float): single coordinate (longitude or latitude)
+    Returns:
+        idx (int): index of the array closest to value 
+    """
     idx = np.searchsorted(array, value, side="left")
     if idx > 0 and (idx == len(array) or math.fabs(value - array[idx-1]) < math.fabs(value - array[idx])):
         return idx-1
@@ -13,15 +36,28 @@ def closest_coordinate_index(array, value):
         return idx
 
 def lonlat_from_displacement(dx: float, dy: float, origin: Tuple[float, float], method='geodesic') -> Tuple[float, float]:
+    """Calculates new coordinates after displacement, given an origin.
+
+    Args:
+        dx (float): displacement in km along the x axis
+        dy (float): displacement in km along the y axis
+        origin (Tuple[float, float]): starting point of displacement
+        method (str): either 'geodesic' or 'great_circle', determines algorithm to use to calculate coordinates
+    
+    Raises:
+        ValueError: raised if method isn't either 'geodesic' or 'great_circle' 
+    
+    Returns:
+        Tuple[float, float]: longitude and latitude of point reached after displacement
+    
+    """
 
     if method == 'geodesic': 
-
         lon, lat = geodesic(dx, dy, origin)
 
         return lon, lat
 
     elif method == 'great circle':
-
         lon, lat = great_circle(dx, dy, origin)
 
         return lon, lat
@@ -29,7 +65,17 @@ def lonlat_from_displacement(dx: float, dy: float, origin: Tuple[float, float], 
     else: 
         raise ValueError("Method must be geodesic or great circle")
 
-def geodesic(dx, dy, origin):
+def geodesic(dx: float, dy: float, origin: Tuple[float, float]) -> Tuple[float, float]:
+    """Algorithm to calculate displacement using a geodesic approach.
+
+    Args: 
+        dx (float): displacement in km along the x axis
+        dy (float): displacement in km along the y axis
+        origin (Tuple[float, float]): starting point of displacement
+
+    Returns:
+        Tuple[float, float]: longitude and latitude of point reached after displacement with geodesic.
+    """
 
     # Calculate the bearing of the displacement
     bearing = bearing_from_displacement(dx, dy)
@@ -47,7 +93,17 @@ def geodesic(dx, dy, origin):
     return destination.longitude, destination.latitude
 
 
-def great_circle(dx, dy, origin):
+def great_circle(dx: float, dy: float, origin: Tuple[float, float]) -> Tuple[float, float]:
+    """Algorithm to calculate displacement using a great circle approach.
+
+    Args: 
+        dx (float): displacement in km along the x axis
+        dy (float): displacement in km along the y axis
+        origin (Tuple[float, float]): starting point of displacement
+
+    Returns:
+        Tuple[float, float]: longitude and latitude of point reached after displacement with great circle.
+    """
 
     longitude, latitude = origin
 
@@ -59,8 +115,10 @@ def great_circle(dx, dy, origin):
     return new_longitude.item(), new_latitude.item()
 
 
-def distance(origin, target):
+def distance(origin: Tuple[float, float], target: Tuple[float, float]):
+    """Calculates distance in km between two lon/lat points
 
+    """
     return gp.distance(gp.lonlat(*origin), gp.lonlat(*target)).km
 
 def distance_from_displacement(dx, dy):
