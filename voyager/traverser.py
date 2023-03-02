@@ -7,6 +7,10 @@ from . import utils
 from typing import *
 
 class Traverser:
+    """A class to represent the trajectory of a vessel with the chosen Chart and Model.
+
+    
+    """
 
     def __init__(self, mode = 'drift', 
                        craft = 1, 

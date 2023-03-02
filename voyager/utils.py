@@ -1,3 +1,20 @@
+"""Different utils
+
+This script contains tools to calculate different quantities used in the simulation. 
+It requires that the packages numpy, json, glob, xarray, pandas and ephem be installed within the Python environment.
+
+This file can be imported as module and contains the following functions:
+    * lonlat_from_displacement - calculates new coordinates after displacement, given an origin, using Great Circle approximation
+    * normalize_longitude(lon): normalizes the longitude such that lon degrees left of the prime meridian count as the east. 
+    * save_to_GeoJSON(data, filename): deprecated, used to save data to GeoJSON format
+    * ecmwf_to_xr(winds): Normalizes the ECMWF data into a standard XArray format.
+    * cmems_to_xr(currents): Normalizes the CMEMS data into a standard XArray format.
+    * load_data(start, end, bbox, data_directory, sourceparallel): Reads the wind and current data from a directory with a specified structure
+    * calculate_sunrise(date, position): Calculates the time of sunrise based on date, longitude and latitude, using the ephem package
+    * calculate_sunset(date, position): Calculates the time of sunset based on date, longitude and latitude, using the ephem package
+
+"""
+
 import numpy as np
 import json
 import os
@@ -47,7 +64,7 @@ def normalize_longitude(lon: np.ndarray) -> np.ndarray:
 
 
 def save_to_GeoJSON(data, filename):
-
+    # DEPR this function is deprecated and not used
     format_dict = to_GeoJSON(data)
 
     with open(filename, 'w') as file:
@@ -90,8 +107,7 @@ def cmems_to_xr(currents: xr.Dataset) -> xr.Dataset:
     return currents
 
 def load_data(start: pd.Timestamp, end: pd.Timestamp, bbox: List, data_directory: str, source: str, parallel=False) -> Tuple[xr.DataArray, xr.DataArray]:
-    """Reads the wind and current data from a directory with a specified structure, namely
-
+    """Reads the wind and current data from a directory with a specified structure.
 
     Args:
         start (pd.Timestamp): The start date 
