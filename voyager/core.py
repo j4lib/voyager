@@ -13,10 +13,32 @@ import cartopy
 
 from typing import Tuple, List, Dict
 
-
+# DEPR is the content of the class Simulation not used??
 
 
 class Simulation:
+    """A class used to represent the simulation to be run. 
+
+    Attributes:
+        model (Model): class object containing modelling parameters
+        craft (str): type of vessel modelled
+        duration (int): maximal duration of trip in days
+        dt (float): time between steps in the simulation in seconds
+        target (List): target of navigation in lon/lat format
+        speed (float): if necessary, input vessel paddling speed (some crafts override this number)
+        start_date (pd.Timestamp): start of simulation period
+        end_date (pd.Timestamp): end of simulation period
+        launch_day_frequency (int): number of days between each launch in the simulation period
+        bbox (List): chart box with minimal/maximal lat/lon (as [lon min, lat min, lon max, lat max])
+        departure_points (List): list of departure points, each entered as [lon, lat]
+        data_directory (str): the path to the data files
+        DEPR ? n_reps (int): number of replicates per simulation
+        u_current_all (Xarray): horizontal component of currents, as read from data
+        v_current_all (Xarray): vertical component of currents, as read from data
+        u_wind_all (Xarray): horizontal component of winds, as read from data
+        v_wind_all (Xarray): vertical component of winds, as read from data
+        dates (pd.date_range): list of dates comprised between start and end of simulation
+    """
 
     def __init__(self, model, 
                        craft, 
@@ -75,7 +97,6 @@ class Simulation:
         grid    = search.GridWithWeights()
         astar   = search.Astar(grid)
         courses = [astar.search(start, self.destination) for start in self.departure_points]
-
 
         # The choice of model governs the behaviour of the vessel trajectories
         self.model = Model(self.duration, self.dt, self.model, self.target, self.speed)
