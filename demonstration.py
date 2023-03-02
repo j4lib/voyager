@@ -138,8 +138,8 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1995-03-01'
-end_date = '1995-03-31'
+start_date = '1993-01-03'
+end_date = '1993-01-15'
 follows_route = False
 weights = [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
 iterations = [15, 5, 3, 1]
@@ -159,8 +159,8 @@ number_of_paddlers = 16
 rowing_cadence = 50
 oar_depth = 0 # in cm. If 0, there is no oar
 
-destination =[6.4902, 58.0128]   # lon lat format
-departure_points = [[8.0888, 56.7981]] #[[8.5693, 57.1543]]
+destination = [8.5693, 57.1543]  # lon lat format
+departure_points = [[7.4652, 57.9131]] #[[8.5693, 57.1543]]
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]

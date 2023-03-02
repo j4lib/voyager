@@ -26,8 +26,8 @@ lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '1994-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
-end_date = '2000-12-31'
+start_date = '1993-01-02' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
+end_date = '1998-12-31'
 
 # Model options
 tolerance = 0.001
@@ -40,13 +40,13 @@ duration = 3 # max duration in days
 timestep = 900 # in seconds, 900 s = 15 minutes
 mode = 'paddling'
 craft = 'hjortspring' # the ones in the config
-vessel_weight = 3000 # in kg
-number_of_paddlers = 20
-rowing_cadence = 70
-oar_depth = 100 # in cm. If 0, there is no oar
+vessel_weight = 2000 # in kg
+number_of_paddlers = 16
+rowing_cadence = 50
+oar_depth = 0 # in cm. If 0, there is no oar
 
 destination = [8.5693, 57.1543]  # lon lat format
-departure_points = [[6.4902, 58.0128]] # 
+departure_points = [[7.4652, 57.9131]] # 
 
 ##### SIMULATION INITIALIZATION
 
@@ -102,12 +102,12 @@ for replicate in range(1, replicates + 1):
              'Sunset': voyager.utils.calculate_sunset(date, departure_points[0])
         }])
 
-        avg_durations = pd.concat([avg_durations, data_to_append], ignore_index=True)
+        avg_durations = data_to_append # pd.concat([avg_durations, data_to_append], ignore_index=True)
 
-    if os.path.exists(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv'):
-        avg_durations.to_csv(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv', mode='a', sep='\t', header=False, index=False)
-    else:
-        avg_durations.to_csv(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv', mode='w', sep='\t', header=True, index=False)
+        if os.path.exists(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv'):
+            avg_durations.to_csv(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv', mode='a', sep='\t', header=False, index=False)
+        else:
+            avg_durations.to_csv(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv', mode='w', sep='\t', header=True, index=False)
 
 
 end_time = time.time()
@@ -115,5 +115,3 @@ total_time = end_time - start_time
 total_time = time.strftime("%H:%M:%S", time.gmtime(total_time))
 
 print("It took " + total_time + " to perform this simulation.")
-
-# TODO create function to generate .csv file: IF the file for the replicate already exists, append. Otherwise, write it up.
