@@ -9,7 +9,22 @@ from typing import *
 class Traverser:
     """A class to represent the trajectory of a vessel with the chosen Chart and Model.
 
-    
+    Attributes:
+        mode (str): mode of movement ('drift', 'paddling' or 'sailing')
+        craft (str or int): type of craft (e.g. 'hjortspring')
+        duration (int): maximal duration of simulation
+        dt (float): time between steps in simulation
+        vessel_config (str): path to vessel configuration file
+        follows_route (bool): whether it follows an ideal route calculated with A-star algorithm
+        destination (Tuple[float, float]): destination point as [lon, lat]
+        speed (float): user supplied paddle speed (overridden in certain cases)
+        data_directory (str): path to data directory
+        start_date (pd.Timestamp): first day of simulation
+        end_date (pd.Timestamp): last day of simulation
+        dates (pd.date_range): sequence of all dates between start date and end date
+        launch_day_freq (int): number of days between launches
+        bbox (List): chart box with minimal/maximal lat/lon (as [lon min, lat min, lon max, lat max])
+        departure_points (List): list of couple of floats giving different departure points
     """
 
     def __init__(self, mode = 'drift', 
@@ -26,6 +41,23 @@ class Traverser:
                        follows_route = False, 
                        data_directory = '', 
                        vessel_config='configs/vessels.yml') -> None:
+        """
+        Args:
+            mode (str): mode of movement ('drift', 'paddling' or 'sailing'), defaults to 'drift'.
+            craft (str or int): type of craft (e.g. 'hjortspring'), defaults to 1
+            duration (int): maximal duration of simulation, defaults to 60
+            dt (float): time between steps in simulation, defaults to 1
+            vessel_config (str): path to vessel configuration file, defaults to configs/vessels.yml
+            follows_route (bool): whether it follows an ideal route calculated with A-star algorithm, defaults to False
+            destination (Tuple[float, float]): destination point as [lon, lat], defaults to []
+            speed (float): user supplied paddle speed (overridden in certain cases), defaults to 2
+            data_directory (str): path to data directory, defaults to ''
+            start_date (pd.Timestamp): first day of simulation, defaults to ''
+            end_date (pd.Timestamp): last day of simulation, defaults to ''
+            launch_freq (int): number of days between launches, defaults to 5
+            bbox (List): chart box with minimal/maximal lat/lon (as [lon min, lat min, lon max, lat max]), defaults to []
+            departure_points (List): list of couple of floats giving different departure points, defaults to []
+        """
 
         self.craft      = craft
         self.mode       = mode

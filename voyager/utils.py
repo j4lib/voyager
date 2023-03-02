@@ -12,7 +12,6 @@ This file can be imported as module and contains the following functions:
     * load_data(start, end, bbox, data_directory, sourceparallel): Reads the wind and current data from a directory with a specified structure
     * calculate_sunrise(date, position): Calculates the time of sunrise based on date, longitude and latitude, using the ephem package
     * calculate_sunset(date, position): Calculates the time of sunset based on date, longitude and latitude, using the ephem package
-
 """
 
 import numpy as np
