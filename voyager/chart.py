@@ -11,10 +11,11 @@ class Chart:
     The Chart object symbolizes the map, including wind and current data, as well as the grid used for path finding.
 
     A chart at any moment is a bounding box of the underlying available data at a specific date interval.
+
+    TODO: add waves data to Chart (for tracking)
     """
 
     def __init__(self, bbox, start_date, end_date) -> None:
-        
         self.bbox = bbox
         self.start_date = start_date
         self.end_date = end_date
@@ -89,7 +90,11 @@ class Chart:
         return self
         
 
-def _interpolate(x, start_date, end_date):
+def _interpolate(x: pd.DataFrame, start_date: pd.Timestamp, end_date: pd.Timestamp) -> RegularGridInterpolator:
+    """Wraps the method RegularGridInterpolator from scipy.interpolate. 
+
+    Data for winds and current come in different format, so it implements the interpolator by unpacking the data in different ways.
+    """
 
     X = x.sel(time=slice(start_date, end_date))
 

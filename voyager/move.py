@@ -388,7 +388,7 @@ class Displacement:
         if 0 <= true_wind_speed_knots <= 30:
             rounded_speed = math.ceil(true_wind_speed_knots/5)*5
         elif true_wind_speed_knots > 30:
-            # TODO what if speed is too high? Set final speed of boat to zero, possibly
+            # ??? what if speed is too high? Set final speed of boat to zero, possibly
             rounded_speed = 30
         else:
             raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
@@ -444,7 +444,7 @@ class Displacement:
         if 0 <= true_wind_speed_knots <= 30:
             rounded_speed = math.ceil(true_wind_speed_knots/5)*5
         elif true_wind_speed_knots > 30:
-            # TODO what if speed is too high? Set final speed of boat to zero, possibly
+            # ??? what if speed is too high? Set final speed of boat to zero, possibly
             rounded_speed = 30
         else:
             raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
