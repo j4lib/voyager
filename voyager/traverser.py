@@ -43,20 +43,20 @@ class Traverser:
                        vessel_config='configs/vessels.yml') -> None:
         """
         Args:
-            mode (str): mode of movement ('drift', 'paddling' or 'sailing'), defaults to 'drift'.
-            craft (str or int): type of craft (e.g. 'hjortspring'), defaults to 1
-            duration (int): maximal duration of simulation, defaults to 60
-            dt (float): time between steps in simulation, defaults to 1
-            vessel_config (str): path to vessel configuration file, defaults to configs/vessels.yml
-            follows_route (bool): whether it follows an ideal route calculated with A-star algorithm, defaults to False
-            destination (Tuple[float, float]): destination point as [lon, lat], defaults to []
-            speed (float): user supplied paddle speed (overridden in certain cases), defaults to 2
-            data_directory (str): path to data directory, defaults to ''
-            start_date (pd.Timestamp): first day of simulation, defaults to ''
-            end_date (pd.Timestamp): last day of simulation, defaults to ''
-            launch_freq (int): number of days between launches, defaults to 5
-            bbox (List): chart box with minimal/maximal lat/lon (as [lon min, lat min, lon max, lat max]), defaults to []
-            departure_points (List): list of couple of floats giving different departure points, defaults to []
+            mode (str, optional): mode of movement ('drift', 'paddling' or 'sailing'), defaults to 'drift'.
+            craft (str or int, optional): type of craft (e.g. 'hjortspring'), defaults to 1
+            duration (int, optional): maximal duration of simulation, defaults to 60
+            dt (float, optional): time between steps in simulation, defaults to 1
+            vessel_config (str, optional): path to vessel configuration file, defaults to configs/vessels.yml
+            follows_route (bool, optional): whether it follows an ideal route calculated with A-star algorithm, defaults to False
+            destination (Tuple[float, float], optional): destination point as [lon, lat], defaults to []
+            speed (float, optional): user supplied paddle speed (overridden in certain cases), defaults to 2
+            data_directory (str, optional): path to data directory, defaults to ''
+            start_date (pd.Timestamp, optional): first day of simulation, defaults to ''
+            end_date (pd.Timestamp, optional): last day of simulation, defaults to ''
+            launch_freq (int, optional): number of days between launches, defaults to 5
+            bbox (List, optional): chart box with minimal/maximal lat/lon (as [lon min, lat min, lon max, lat max]), defaults to []
+            departure_points (List, optional): list of couple of floats giving different departure points, defaults to []
         """
 
         self.craft      = craft
@@ -113,7 +113,7 @@ class Traverser:
 
         Args:
             mode (str, optional): The mode of propulsion, either 'sailing', 'paddling' or 'drift'. Defaults to 'drift'.
-            craft (int, optional): The craft type. Defaults to 1.
+            craft (int or str, optional): The craft type. Defaults to 1.
             duration (int, optional): The maximal duration in days of the trajectories. Defaults to 60.
             timestep (int, optional): Timestep for updating the speed and position of the vessels. Defaults to 1.
             destination (list, optional): Destination coordinates in WGS84. Defaults to [].
@@ -137,7 +137,6 @@ class Traverser:
         # The chart object keeps track of the region of interest
         # and the wind/current data for that region
         # It is shared by all vessels
-        
         if not chart:
             start_date = pd.to_datetime(date, infer_datetime_format=True)
             end_date   = start_date + pd.Timedelta(duration, unit='days')
@@ -203,12 +202,6 @@ class Traverser:
         if not model:
             model = Model(self.duration, self.timestep, **model_kwargs)
 
-#        chart = Chart(self.bbox, self.start_date, self.end_date).load(self.data_directory, **chart_kwargs)
-        
-        # The model object describes the equations of movement and
-        # traversal across the oceans over time
-#        model = Model(self.duration, self.dt, **model_kwargs)
-
         results = {}
         for date in self.dates[::self.launch_day_frequency]:
 
@@ -245,6 +238,8 @@ class Traverser:
 
     def run_mp(self, model_kwargs={}, chart_kwargs={}) -> Dict[str, Dict]:
         """Pseudo-parallel generation of a set of trajectories in a date range, with a certain launch day frequency for the vessels.
+
+        DEPR this function was never used and I don't expect to ever getting around to use it.
 
         Args:
             model_kwargs (dict, optional): Parameters for the model. Defaults to {}.
@@ -344,7 +339,6 @@ class Traverser:
         # The chart object keeps track of the region of interest
         # and the wind/current data for that region
         # It is shared by all vessels
-        
         if not chart:
             start_date = pd.to_datetime(start_date, infer_datetime_format=True)
             max_end_date   = start_date + pd.Timedelta(duration, unit='days')
@@ -361,8 +355,6 @@ class Traverser:
 
         results = []
         for date in dates[::launch_day_frequency]:
-            # FIXME currently if a date of launch is at the end of the specified period, interpolation of values risks to be out of domain!
-
             # Calculate sunrise
             date = utils.calculate_sunrise(date, departure_point)
 

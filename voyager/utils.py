@@ -63,7 +63,15 @@ def normalize_longitude(lon: np.ndarray) -> np.ndarray:
 
 
 def save_to_GeoJSON(data, filename):
-    # DEPR this function is deprecated and not used
+    """function to save a dictionary resulting from a Traverser instance into a GeoJSON.
+
+    DEPR this function is deprecated and not used.
+
+    Args:
+        data (Dict): data to be saved to GeoJSON
+        filename (str): path of resulting filename
+    """
+    
     format_dict = to_GeoJSON(data)
 
     with open(filename, 'w') as file:
