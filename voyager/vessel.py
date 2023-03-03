@@ -4,6 +4,41 @@ import numpy as np
 from typing import *
 
 class Vessel:
+    """Class used to represent a vessel travelling in the simulation. It tracks its parameters and its travel.
+
+    Attributes:
+        x (float): last recorded position of the vessel on the x-axis (longitude)
+        y (float): last recorded position of the vessel on the y-axis (latitude)
+        craft (int or str): The craft type.
+        mode (str): mode of navigation ('drift', 'paddling' or 'sailing'). 
+        route (List[Tuple[float, float]]): ideal navigation route as calculated with A-star algorithm.
+        destination (list): Destination coordinates in WGS84.
+        launch_date (pd.Timestamp): Date of launch of the current vessel.
+        speed (int): Paddling speed in m/s.
+        paddlers (int): number of paddlers on the boat. 
+        weight (int): total weight of the boat in kg. 
+        cadence (int): number of strokes per minutes while paddling.
+        oar_depth (int): depth of the oar, influencing variability in the trajectory, measured in cm. Depth of 0 means no oars.
+        with_route (bool): Whether it uses the ideal route, or points straight to destination. 
+        trajectory (List[Tuple[float, float]]): record of current trajectory.
+        distance (float): distance navigated up to current time in km.
+        mean_speed (float): mean_speed of navigation up to the current time in km/h.
+        duration (float): duration up to current time in timesteps.
+        encountered_current (List[Tuple[float, float]]): record of currents encountered up to the current time.
+        encountered_winds (List[Tuple[float, float]]): record of winds encountered up to the current time.
+        target (Tuple[float, float]): current target (either node in the route, or destination, depending on value of with_route).
+        params (Dict): other vessel features.
+        
+    Methods:
+        from_position(point, chart, destination, interval , **kwargs): Creates a vessel from a start position.
+        from_positions(point, chart, destination, interval , **kwargs): Generates a list of vessels from multiple positions.
+        update_distance(x, y): Updates position and records it to the trajectory.
+        update_mean_speed(dt): Updates the total mean speed of the trajectory from the total distance travelled.
+        update_encountered_environment(current, wind): Updates the currents and winds encountered in the simulation.
+        has_arrived(longitude, latitude, target_tol): Calculates whether the vessel has arrived to its destination with in a certain tolerance.
+        to_dict(): Saves data into dictionary that can then be converted to GeoJSON.
+        to_GeoJSON(start_date, stop_date, dt): Converts vessel data into a GeoJSON representation.
+    """
 
     def __init__(self, x, 
                        y, 
@@ -20,7 +55,23 @@ class Vessel:
                        with_route = False,
                        params = {}
                        ):
-
+        """                
+        x (float): last recorded position of the vessel on the x-axis (longitude)
+        y (float): last recorded position of the vessel on the y-axis (latitude)
+        craft (int or str, optional): The craft type. Defaults to 1.
+        mode (str, optional): mode of navigation ('drift', 'paddling' or 'sailing'). Defaults to 'drift'.
+        route (np.ndarray, optional): ideal navigation route as calculated with A-star algorithm. Defaults to None.
+        destination (list, optional): Destination coordinates in WGS84. Defaults to None.
+        launch_date (pd.Timestamp, optional): Date of launch of the current vessel. Defaults to None.
+        speed (int, optional): Paddling speed in m/s. Defaults to 0.
+        paddlers (int, optional): number of paddlers on the boat. Defaults to 0.
+        weight (int, optional): total weight of the boat in kg. Defaults to 0.
+        cadence (int, optional): number of strokes per minutes while paddling. Defaults to 0.
+        oar_depth (int, optional): depth of the oar, influencing variability in the trajectory, measured in cm. Depth of 0 means no oars. Defaults to 0.
+        with_route (bool, optional): Whether it uses the ideal route, or points straight to destination. Defaults to False.
+        paramts (Dict, optional): Other features of the vessel. Defaults to {}.
+        """
+        
         self.craft = craft
         self.mode = mode
         self.launch_date = launch_date
@@ -52,8 +103,6 @@ class Vessel:
         except:
             print("You need to specify whether a route is taken!")
             
-            
-
         # Read the features of the vessel
         self.params = params
 
@@ -65,6 +114,7 @@ class Vessel:
                            interval: int = 5, 
                            **kwargs):
         """Creates a vessel from a start position, using a pre-supplied Chart object and destination.
+
         The chart and interval parameters are used to create a route from the start position and the destination, the interval
         deciding the number of milestones along the way.
 
@@ -242,6 +292,8 @@ class Vessel:
             return False
 
     def to_dict(self):
+        """Saves data into dictionary that can then be converted to GeoJSON.
+        """
 
         return {
             "trajectory": self.trajectory,
