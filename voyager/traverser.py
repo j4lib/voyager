@@ -70,7 +70,6 @@ class Traverser:
         self.dt         = timestep
         self.vessel_config = vessel_config
         self.follows_route = follows_route
-        # self.n_reps     = n_reps
 
         self.destination = destination
         self.speed       = speed
@@ -230,7 +229,6 @@ class Traverser:
         Returns:
             Dict: The trajectories as GeoJSON compliant dictionary
         """
-
 
         # The chart object keeps track of the region of interest
         # and the wind/current data for that region

@@ -95,9 +95,7 @@ class Grid:
             Iterator[Position]: An iterator with the traversable neighbours
         """
         (x, y) = id
-        # neighbors = [(x+1, y), (x-1, y), (x, y-1), (x, y+1)] # E W N S
         neighbors = [(x+1, y), (x-1, y), (x, y+1), (x, y-1), (x+1, y+1), (x-1, y-1), (x+1, y-1), (x-1, y+1)]
-        # see "Ugly paths" section for an explanation:
         if (x + y) % 2 == 0: neighbors.reverse() # S N W E
         results = filter(self.in_bounds, neighbors)
         results = filter(self.passable, results)
@@ -117,7 +115,6 @@ class WeightedGrid(Grid):
         create_shoreline_contour(mask, weights=[5, 0.5], iterations=[1, 4], kernel_size=3): creates weighted shoreline contours for the map.
         mask_to_graph(mask): superposes mask on Grid.
     """
-
 
     def __init__(self, width: int, height: int):
         super().__init__(width, height)

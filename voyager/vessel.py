@@ -131,7 +131,6 @@ class Vessel:
             Vessel: A Vessel instance
         """
         
-
         x, y = point
 
         if (destination is not None) and (chart is not None):

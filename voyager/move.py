@@ -307,8 +307,6 @@ class Displacement:
 
         # Calculate the drift due to the currents
         dxy_c = c * self.dt
-        # print("displacement from c:", dxy_c)
-        # print("current velocity:", np.linalg.norm(c))
 
         # Calculate the bearing
         bearing = target - position
@@ -324,8 +322,7 @@ class Displacement:
         b = np.abs(np.rad2deg(b))
 
         w_abs = np.linalg.norm(w)
-        # print("wind velocity:", np.linalg.norm(w))
-
+        
         mt          = self.vessel.params["mt"]
         wf_0_40     = self.vessel.params["wf 0-40"]
         wf_40_80    = self.vessel.params["wf 40-80"]
@@ -424,7 +421,7 @@ class Displacement:
         if 0 <= true_wind_speed_knots <= 30:
             rounded_speed = math.ceil(true_wind_speed_knots/5)*5
         elif true_wind_speed_knots > 30:
-            # ??? what if speed is too high? Set final speed of boat to zero, possibly
+            # OPEN what if speed is too high? Set final speed of boat to zero, possibly
             rounded_speed = 30
         else:
             raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
@@ -459,10 +456,6 @@ class Displacement:
         w = w.squeeze()
 
         true_wind_angle = np.arctan2(np.linalg.det([bearing_decomposed, w]), np.dot(bearing_decomposed, w))
-        # if np.rad2deg(true_wind_angle) >= 0:
-        #     from_right = True # mark if wind comes from the right, important to apply leeway!
-        # else:
-        #     from_right = False
 
         # find the wind_sign, will be used in leeway_angle to apply the correct angle to leeway.
         wind_sign = np.sign(true_wind_angle)
@@ -480,7 +473,7 @@ class Displacement:
         if 0 <= true_wind_speed_knots <= 30:
             rounded_speed = math.ceil(true_wind_speed_knots/5)*5
         elif true_wind_speed_knots > 30:
-            # ??? what if speed is too high? Set final speed of boat to zero, possibly
+            # OPEN what if speed is too high? Set final speed of boat to zero, possibly
             rounded_speed = 30
         else:
             raise ValueError(f"Wind speed is negative ({true_wind_speed} m/s)")
