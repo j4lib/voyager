@@ -121,6 +121,7 @@ class Model:
 
             # If return is None, we have reached land
             if c is None or w is None:
+                print("Is this land?")
                 break
 
             # Calculate displacement

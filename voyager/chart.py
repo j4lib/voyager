@@ -33,6 +33,7 @@ class Chart:
     Methods:
         load(data_dir, **kwargs): loads the Chart data for dynamical updating
         interpolate(date, duration): interpolates the loaded data for the selected period
+        isLand(longitude, latitude): Determines whether a certain position is land or not.
         _interpolate(x, start_date, end_date): creates interpolation object used in 'interpolate'
     """
 
@@ -116,6 +117,31 @@ class Chart:
         self.v_wind = _interpolate(self.v_wind_all, date, end_date) 
 
         return self
+    
+
+    def isLand(self, longitude: float, latitude: float) -> bool:
+        """Determine whether a certain position is land or not.
+
+        Args:
+            longitude (float): Longitude (WGS84)
+            latitude (float): Latitude (WGS84)
+
+        Returns:
+            bool: True if the lon/lat coordinate corresponds to land.
+        """
+
+        v_x_current = self.u_current_all.sel(time=self.start_date, 
+                                             longitude=longitude, 
+                                             latitude=latitude, method="nearest")
+        v_y_current = self.v_current_all.sel(time=self.start_date, 
+                                             longitude=longitude, 
+                                             latitude=latitude, method="nearest")
+
+        # If any component of currents is None, the point is on land.
+        if np.isnan(v_x_current) or np.isnan(v_y_current):
+            return True
+        else:       
+            return False
         
 
 def _interpolate(x, start_date: pd.Timestamp, end_date: pd.Timestamp) -> RegularGridInterpolator:
