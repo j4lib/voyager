@@ -1,7 +1,15 @@
+"""This script contains the class Chart, as well as the method:
+
+_interpolate(x, start_date, end_date): creates interpolation object used in 'interpolate'
+
+We store the method here since it's used exlusively in this class.
+"""
+
 import pandas as pd
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 import dask
+import xoak
 
 from . import utils
 from . import search
@@ -34,7 +42,6 @@ class Chart:
         load(data_dir, **kwargs): loads the Chart data for dynamical updating
         interpolate(date, duration): interpolates the loaded data for the selected period
         isLand(longitude, latitude): Determines whether a certain position is land or not.
-        _interpolate(x, start_date, end_date): creates interpolation object used in 'interpolate'
     """
 
     def __init__(self, bbox, start_date, end_date) -> None:
@@ -84,6 +91,10 @@ class Chart:
                                                                     bbox=self.bbox,
                                                                     data_directory=self.data_dir,
                                                                     source="winds")
+            
+            # Addition to use normal coordinates in models.py.
+            self.u_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
+            self.v_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
 
 
         map          = self.u_current_all.sel(time=self.start_date, method="nearest")

@@ -1,5 +1,8 @@
 from typing import Tuple
 import numpy as np
+import pandas as pd
+import xoak
+import xarray as xr
 
 from .vessel import Vessel
 from .chart import Chart
@@ -77,6 +80,53 @@ class Model:
         v_y_wind = self.chart.v_wind((t, longitude, latitude))
 
         return (np.array([v_x_current, v_y_current]), np.array([v_x_wind, v_y_wind]))
+    
+    def real_velocity(self, t: float, longitude: float, latitude: float) -> Tuple[np.ndarray, np.ndarray]:
+        """Calculate a tuple of (current, wind) velocities at a specific time and set of
+        WGS84 coordinates without interpolation. This function is optimized for our current datasets.
+
+        Args:
+            t (float): time
+            longitude (float): Longitude (WGS84)
+            latitude (float): Latitude (WGS84)
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: The current and wind velocities respectively
+        """
+
+        assert self.chart != None
+
+        N_SECONDS_IN_DAY = 86400
+        current_time = self.chart.start_date + pd.Timedelta(t*N_SECONDS_IN_DAY, unit="seconds")
+
+        # Calculate current speeds
+        v_x_current = self.chart.u_current_all.sel(time=current_time, 
+                                                    longitude=longitude, 
+                                                    latitude=latitude,
+                                                    method="nearest")
+        v_y_current = self.chart.v_current_all.sel(time=current_time, 
+                                                    longitude=longitude, 
+                                                    latitude=latitude,
+                                                    method="nearest")
+
+        # Test if we have reached land. If so, break simulation
+        # TODO write a function that does not always stops the simulation when land is hit.
+        if np.isnan(v_x_current) or np.isnan(v_y_current):
+            return None, None
+
+        # Wind data are set with multiple coordinates, where lons / lats are not coordinates, but values inscripted on a system of
+        # logical (x,y)-coordinates. So we use the package xoak to find the cell closest to coordinates lon/lat as given in the input (see
+        # xoak Documentation for how this is set up).
+        #self.chart.u_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
+        u_selected_grid_cell = self.chart.u_wind_all.xoak.sel(longitude=xr.DataArray([longitude, ]), latitude=xr.DataArray([latitude,]))
+        v_x_wind = u_selected_grid_cell.sel(time=current_time, method="nearest")
+
+        #self.chart.v_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
+        v_selected_grid_cell = self.chart.v_wind_all.xoak.sel(longitude=xr.DataArray([longitude, ]), latitude=xr.DataArray([latitude,]))
+        v_y_wind = v_selected_grid_cell.sel(time=current_time, method="nearest")
+
+        return (np.array([v_x_current, v_y_current]), np.array([v_x_wind, v_y_wind]))
+
 
     def run(self, vessel: Vessel) -> Vessel:
         """Calculates the trajectory of a vessel object in space over time.
@@ -117,7 +167,7 @@ class Model:
         for t in np.arange(start=0, stop=self.duration, step=self.dt/N_SECONDS_IN_DAY):
             
             # Calculate interpolated velocity at current coordinates
-            c, w = self.velocity(t, longitude, latitude)
+            c, w = self.real_velocity(t, longitude, latitude)
 
             # If return is None, we have reached land
             if c is None or w is None:
