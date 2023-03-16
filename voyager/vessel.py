@@ -1,6 +1,7 @@
 
 from . import geo, search, chart
 import numpy as np
+import pandas as pd
 from typing import *
 
 class Vessel:
@@ -26,6 +27,8 @@ class Vessel:
         duration (float): duration up to current time in timesteps.
         encountered_current (List[Tuple[float, float]]): record of currents encountered up to the current time.
         encountered_winds (List[Tuple[float, float]]): record of winds encountered up to the current time.
+        stops (List[str]): list of stops done by the vessels (used only when navigating multi-day).
+        coord_stops (List[Tuple[float, float]]): positions of all the stops (used only when navigating multi-day).
         target (Tuple[float, float]): current target (either node in the route, or destination, depending on value of with_route).
         params (Dict): other vessel features.
         
@@ -35,6 +38,7 @@ class Vessel:
         update_distance(x, y): Updates position and records it to the trajectory.
         update_mean_speed(dt): Updates the total mean speed of the trajectory from the total distance travelled.
         update_encountered_environment(current, wind): Updates the currents and winds encountered in the simulation.
+        update_stops(time_stop, coord_stop): Updates when a vessel stops for the night (for multi-day trips)
         has_arrived(longitude, latitude, target_tol): Calculates whether the vessel has arrived to its destination with in a certain tolerance.
         to_dict(): Saves data into dictionary that can then be converted to GeoJSON.
         to_GeoJSON(start_date, stop_date, dt): Converts vessel data into a GeoJSON representation.
@@ -92,6 +96,8 @@ class Vessel:
         self.duration = 0
         self.encountered_current = []
         self.encountered_winds = []
+        self.stops = []
+        self.coord_stops = []
 
         self.route  = route
         self.route_taken = [[float(x),float(y)] for x,y in self.route]
@@ -161,6 +167,7 @@ class Vessel:
             vessel = cls(x, y, 
                          route = route, 
                          destination = destination, 
+                         launch_date = kwargs['launch_date'],
                          craft = kwargs['craft'], 
                          mode = kwargs['mode'],
                          speed = kwargs['speed'],
@@ -171,7 +178,6 @@ class Vessel:
                          with_route = kwargs['with_route'])
 
         else:
-
             # Create a vessel without a route
             vessel = cls(x, y, destination=destination, **kwargs)
 
@@ -264,6 +270,18 @@ class Vessel:
         self.encountered_winds.append([wind[0], wind[1]])
 
         return self
+    
+    def update_stops(self, stop_date: pd.Timedelta, stop_coord: Tuple[float, float]):
+        """When a vessel stops for the night, it saves the time and position of the stop.
+
+        Args:
+            stop_date (pd.TimeDelta): time of stop for the night
+            stop_coord (Tuple[float, float]): coordinates of stop for the night
+        """
+        self.stops.append(stop_date)
+        self.coord_stops.append(stop_coord)
+
+        return self
 
     def has_arrived(self, longitude: float, latitude: float, target_tol: float) -> bool:
         """Calculates whether the vessel has arrived to its destination with in a certain tolerance.
@@ -338,7 +356,9 @@ class Vessel:
                     "route": self.route_taken,
                     "duration": self.duration*dt / 3600, # in hours
                     "trip_currents": self.encountered_current,
-                    "trip_winds": self.encountered_winds
+                    "trip_winds": self.encountered_winds,
+                    "stop_times": self.stops,
+                    "stop_coords": self.coord_stops
                 }          
             }
         )

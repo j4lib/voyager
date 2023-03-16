@@ -28,6 +28,7 @@ class Traverser:
     Methods:
         trajectory(...): class generating method that generates a vessel and its trajectories from a certain date.
         trajectories(...): class generating method that generates a vessel and its trajectories between two dates with a certain launch frequency.
+        trajectory_by_day(...): class generating method that does the same as trajectory but stops at night.
         run(chart, model, model_kwargs, chart_kwargs): Generates a set of trajectories in a date range, with a certain launch day frequency for the vessels.
         run_mp(model_kwargs, chart_kwargs): Pseudo-parallel generation of a set of trajectories in a date range, with a certain launch day frequency for the vessels.
     """
@@ -122,7 +123,7 @@ class Traverser:
             timestep (int, optional): Timestep for updating the speed and position of the vessels. Defaults to 1.
             destination (list, optional): Destination coordinates in WGS84. Defaults to [].
             speed (int, optional): Paddling speed in m/s. Defaults to 2.
-            date (str, optional): Date as a YYYY-MM-DD string. Defaults to ''.
+            date (pd.Timestamp, optional): Date as a YYYY-MM-DD string. Defaults to ''.
             bbox (list, optional): Bounding box of the map. Defaults to [].
             departure_point (list, optional): Departure point in WGS84. Defaults to [].
             data_directory (str, optional): The root directory of the velocity data. Defaults to ''.
@@ -136,7 +137,6 @@ class Traverser:
         Returns:
             Dict: The trajectories as GeoJSON compliant dictionary
         """
-
 
         # The chart object keeps track of the region of interest
         # and the wind/current data for that region
@@ -156,6 +156,7 @@ class Traverser:
                                       craft = craft,
                                       chart = chart,
                                       destination = destination,
+                                      launch_date = date,
                                       speed = speed,
                                       paddlers = paddlers,
                                       weight = weight,
@@ -174,6 +175,96 @@ class Traverser:
 
         # Run the model
         vessel = model.run(vessel)
+
+        start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%S')
+        stop_date_str  = (start_date + pd.Timedelta(len(vessel.trajectory)*timestep, unit='s')).strftime('%Y-%m-%dT%H:%M:%S')
+
+        return vessel.to_GeoJSON(start_date_str, stop_date_str, timestep)
+
+    @classmethod
+    def trajectory_by_day(
+            cls,
+            mode = 'drift', 
+            craft = 1, 
+            duration = 60,
+            timestep = 1, 
+            destination = [], 
+            speed = 2, 
+            paddlers = 0,
+            weight = 0,
+            cadence = 0,
+            oar_depth = 0,     
+            date = '', 
+            bbox = [], 
+            departure_point = [], 
+            data_directory = '', 
+            vessel_params= {},
+            chart_kwargs = {}, 
+            model_kwargs = {}, 
+            chart = None, 
+            model = None,
+            follows_route = False) -> Dict:
+        """Generates a single set of trajectories from a single set of departure and destination 
+        points, by navigating only by day.
+
+        Args:
+            mode (str, optional): The mode of propulsion, either 'sailing', 'paddling' or 'drift'. Defaults to 'drift'.
+            craft (int or str, optional): The craft type. Defaults to 1.
+            duration (int, optional): The maximal duration in days of the trajectories. Defaults to 60.
+            timestep (int, optional): Timestep for updating the speed and position of the vessels. Defaults to 1.
+            destination (list, optional): Destination coordinates in WGS84. Defaults to [].
+            speed (int, optional): Paddling speed in m/s. Defaults to 2.
+            date (pd.Timedelta, optional): Date as a YYYY-MM-DD string. Defaults to ''.
+            bbox (list, optional): Bounding box of the map. Defaults to [].
+            departure_point (list, optional): Departure point in WGS84. Defaults to [].
+            data_directory (str, optional): The root directory of the velocity data. Defaults to ''.
+            vessel_params (dict, optional): Parameters for the vessel configuration. Defaults to {}.
+            chart_kwargs (dict, optional): Parameters for the chart configuration. Defaults to {}.
+            model_kwargs (dict, optional): Parameters for the model configuration. Defaults to {}.
+            chart (_type_, optional): Pre-supplied Chart object. Defaults to None.
+            model (_type_, optional): Pre-supplied Model object. Defaults to None.
+            follows_route (bool, optional): Uses ideal route, or points to destination. Defaults to False.
+
+        Returns:
+            Dict: The trajectories as GeoJSON compliant dictionary
+        """
+
+        # The chart object keeps track of the region of interest
+        # and the wind/current data for that region
+        # It is shared by all vessels
+        if not chart:
+            start_date = pd.to_datetime(date, infer_datetime_format=True)
+            end_date   = start_date + pd.Timedelta(duration, unit='days')
+            chart = Chart(bbox, start_date, end_date).load(data_directory, **chart_kwargs)
+        
+        # The model object describes the equations of movement and
+        # traversal across the oceans over time
+        if not model:
+            model = Model(duration, timestep, **model_kwargs)
+
+        vessel = Vessel.from_position(departure_point, 
+                                      craft = craft,
+                                      chart = chart,
+                                      destination = destination,
+                                      launch_date = date,
+                                      speed = speed,
+                                      paddlers = paddlers,
+                                      weight = weight,
+                                      cadence = cadence,
+                                      oar_depth = oar_depth,
+                                      mode = mode,
+                                      with_route = follows_route,
+                                      params = vessel_params[mode][craft])
+
+        # Interpolate the data for only the duration specified
+        start_date = utils.calculate_sunrise(chart.start_date, departure_point)
+        chart.interpolate(start_date, duration)
+
+        # Use the interpolated values in the model
+        model.use(chart)
+
+        # Run the model
+        vessel = model.run_by_day(vessel)
 
         start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%S')
         stop_date_str  = (start_date + pd.Timedelta(len(vessel.trajectory)*timestep, unit='s')).strftime('%Y-%m-%dT%H:%M:%S')

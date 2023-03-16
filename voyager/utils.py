@@ -12,6 +12,7 @@ This file can be imported as module and contains the following functions:
     * load_data(start, end, bbox, data_directory, sourceparallel): Reads the wind and current data from a directory with a specified structure
     * calculate_sunrise(date, position): Calculates the time of sunrise based on date, longitude and latitude, using the ephem package
     * calculate_sunset(date, position): Calculates the time of sunset based on date, longitude and latitude, using the ephem package
+    * is_it_night(date_and_time, position): Calculates whether a certain hour during a certain date at a certain position is nighttime.
 """
 
 import numpy as np
@@ -182,7 +183,6 @@ def calculate_sunrise(date: pd.Timestamp, position: Tuple[float, float]):
     sunrise = ephem.localtime(earth.next_rising(sun))
     return pd.Timestamp(sunrise)
 
-
 def calculate_sunset(date: pd.Timestamp, position: Tuple[float, float]):
     """Calculates the time of sunset based on date, longitude and latitude, using the ephem package.
 
@@ -203,3 +203,20 @@ def calculate_sunset(date: pd.Timestamp, position: Tuple[float, float]):
 
     sunset = ephem.localtime(earth.next_setting(sun))
     return pd.Timestamp(sunset)
+
+def is_it_night(date_and_time: pd.Timestamp, position: Tuple[float, float]) -> bool:
+    """Calculates whether a set of coordinates refer to a moment in the day or in the night. 
+
+    Args:
+        date_and_time (pd.Timestamp): day of the year
+        position (Tuple[float, float]): place in format [longitude, latitude]
+
+    Returns:
+        bool: returns whether the point is during the night or not
+    """
+    what_day = date_and_time.date()
+    sunrise = calculate_sunrise(what_day, position)
+    sunset = calculate_sunset(what_day, position)
+
+    is_night = (date_and_time <= sunrise) or (sunset <= date_and_time)
+    return is_night

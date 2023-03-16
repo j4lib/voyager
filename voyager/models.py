@@ -7,6 +7,7 @@ import xarray as xr
 from .vessel import Vessel
 from .chart import Chart
 from .move import Displacement
+from .utils import calculate_sunrise, is_it_night
 
 class Model:
     """A class to represent the model being simulated. A "model" in this context represents the set of modelling choices.
@@ -167,11 +168,15 @@ class Model:
         for t in np.arange(start=0, stop=self.duration, step=self.dt/N_SECONDS_IN_DAY):
             
             # Calculate interpolated velocity at current coordinates
-            c, w = self.real_velocity(t, longitude, latitude)
+            c, w = self.velocity(t, longitude, latitude)
 
-            # If return is None, we have reached land
+            # if c, w, None: either it's land, or interpolate has boundaries issues, 
+            # so just test velocity on the real data before determining whether it's land.
             if c is None or w is None:
-                print("Is this land?")
+                c, w = self.real_velocity(t, longitude, latitude)
+
+            # If c, w still None, then land has been reached!
+            if c is None or w is None:
                 break
 
             # Calculate displacement
@@ -195,5 +200,95 @@ class Model:
 
             if is_arrived:
                 break
+
+        return vessel
+
+    def run_by_day(self, vessel: Vessel) -> Tuple[Vessel, bool]:
+        """Calculates the trajectory of a vessel object in space over time, stops trip at night.
+
+        Trajectories are calculated by estimating the displacement in km from a position in
+        (longitude, latitude) coordinates, and converting the displacement back to (longitude, latitude).
+
+        Simulation is stopped when the vessel encounters NaN, indicating land or area outside the simulation region.
+
+        Assumes a spherical Earth.
+
+        Args:
+            vessel (Vessel): Vessel object with initial position
+
+        Returns:
+            Vessel: A modified vessel object with full trajectory
+        """
+
+        # Set random seed
+        # Important, otherwise all virtual threads will return the same result
+        np.random.seed()
+
+        longitude = vessel.x
+        latitude  = vessel.y
+
+        # Constant
+        N_SECONDS_IN_DAY = 86400
+
+        # Initialization
+        dx = 0
+        dy = 0
+        initial_day_time = calculate_sunrise(vessel.launch_date.date(), [longitude, latitude])
+        is_night = False
+
+        target_tol = (self.dt) * self.tolerance # 1/1000 is a good value
+
+        # The type of displacement is handled by the vessel mode of traversal
+        displacement = Displacement(vessel, self.dt)
+        
+        for t in np.arange(start=0, stop=self.duration, step=self.dt/N_SECONDS_IN_DAY):
+            current_day_time = initial_day_time + pd.Timedelta(t, unit="days")
+
+            if is_night:
+                # if here it's night from last step, re-calculate for next loop, then skip Displacement update.
+                is_night = is_it_night(current_day_time, [longitude, latitude])
+                continue
+            
+            # Calculate interpolated velocity at current coordinates
+            c, w = self.velocity(t, longitude, latitude)
+
+            # if c, w, None: either it's land, or interpolate has boundaries issues, 
+            # so just test velocity on the real data before determining whether it's land.
+            if c is None or w is None:
+                c, w = self.real_velocity(t, longitude, latitude)
+
+            # If c, w still None, then land has been reached!
+            if c is None or w is None:
+                break
+
+            # Calculate displacement
+            dx, dy = displacement.move(c, w)\
+                                 .with_uncertainty(sigma=self.sigma)\
+                                 .km()
+               
+            # Calculate new longitude, latitude from displacement
+            # Using great circle distances
+            longitude, latitude = displacement.to_lonlat(dx, dy, longitude, latitude)
+
+            # Update vessel data
+            vessel.update_distance(dx, dy)\
+                  .update_position(longitude, latitude)\
+                  .update_mean_speed(self.dt)\
+                  .update_encountered_environment(c, w)
+
+            # Check progress along route
+            is_arrived = vessel.has_arrived(longitude, latitude, target_tol)
+
+            if is_arrived:
+                break
+
+            current_day_time = initial_day_time + pd.Timedelta(t, unit="days")
+            is_night = is_it_night(current_day_time, [longitude, latitude])
+
+            if is_night:
+                # if the code arrived here, it means that at the last iteration it was day.
+                # So it just became night, and it's time to update the stops.
+                vessel.update_stops(current_day_time, [longitude, latitude])
+                # when night is reached, the vessel stops and it sleeps (see if-clause at the beginning of the loop.)
 
         return vessel

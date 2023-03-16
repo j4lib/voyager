@@ -62,6 +62,9 @@ def plot(geojson: Dict, bbox: List, show_route: bool = False, **kwargs):
     ax.scatter(x=departure_points[0][0], y=departure_points[0][1], color="red")
     ax.scatter(x=destination[0], y=destination[1], color="green")
 
+    stop_coordinates = pd.DataFrame(geojson['features'][0]['properties']['stop_coords'], columns=['x', 'y'])
+    ax.scatter(x=stop_coordinates['x'], y=stop_coordinates['y'], color="gold",s = 100)
+
     ax.set_title(f'Trip duration: {df.duration.values[0]} hours.')
 
     if show_route == True:
@@ -140,8 +143,8 @@ lon_max = 13.536054 #15
 lat_max = 59.388759 #60
 start_date = '1995-07-01'
 end_date = '1995-07-15'
-follows_route = False
-weights = [1,1,1,1] # Interesting: [5, 5, 1, 100] # Victor's: [100, 50, 1, 100]
+follows_route = True
+weights = [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Neutral: [1,1,1,1]
 iterations = [15, 5, 3, 1]
 
 # Model options
@@ -150,8 +153,8 @@ sigma = 0 # 100
 
 # Trajectory options
 launch_freq = 3 # days
-duration = 5 # max duration in days
-timestep = 5 #900 # s
+duration = 15 # max duration in days
+timestep = 30 # 900 s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
 vessel_weight = 2000 # in kg
@@ -159,8 +162,8 @@ number_of_paddlers = 16
 rowing_cadence = 50
 oar_depth = 0 # in cm. If 0, there is no oar
 
-destination = [10.5881, 57.2335] # lon lat format
-departure_points = [[10.7875, 57.2335]] #[[8.5693, 57.1543]]
+destination = [6.6024, 58.0317] # lon lat format
+departure_points = [[11.9518, 57.3253]] #[10.7875, 57.2335]
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
@@ -184,7 +187,6 @@ chart = voyager.Chart(bbox, start_date, end_date + pd.Timedelta(duration, unit="
 # f, ax = plot_contours(chart)
 # plt.show(block=False)
 
-
 #%%  
 # Create the model that steps throught time
 model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
@@ -192,11 +194,12 @@ model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
 #%%
 # Calculate the trajectories
 
-single_result = voyager.Traverser.trajectory(mode = mode,
+single_result = voyager.Traverser.trajectory_by_day(mode = mode,
                                              craft = craft, 
                                              duration = duration,
                                              timestep = timestep, 
                                              destination = destination,
+                                             date = start_date,
                                              paddlers = number_of_paddlers,
                                              weight = vessel_weight,
                                              cadence = rowing_cadence,
@@ -207,6 +210,11 @@ single_result = voyager.Traverser.trajectory(mode = mode,
                                              chart = chart, 
                                              model = model,
                                              follows_route = follows_route)
+
+
+# %%
+f, ax = plot(single_result, bbox, show_route=follows_route)
+plt.show()
 
 #%%
 results = voyager.Traverser.trajectories(mode = mode,
@@ -230,9 +238,3 @@ results = voyager.Traverser.trajectories(mode = mode,
 #%%
 f, ax = plot_multiple(results, bbox, show_route=follows_route)
 plt.show()
-
-# %%
-f, ax = plot(single_result, bbox, show_route=follows_route) #, show_route=True)
-plt.show()
-
-# %%
