@@ -142,8 +142,8 @@ lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
 start_date = '1995-07-01'
-end_date = '1995-07-15'
-follows_route = True
+end_date = '1995-07-31'
+follows_route = False
 weights = [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Neutral: [1,1,1,1]
 iterations = [15, 5, 3, 1]
 
@@ -153,17 +153,17 @@ sigma = 0 # 100
 
 # Trajectory options
 launch_freq = 3 # days
-duration = 15 # max duration in days
+duration = 3 # max duration in days
 timestep = 30 # 900 s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
-vessel_weight = 2000 # in kg
+vessel_weight = 3000 # in kg
 number_of_paddlers = 16
 rowing_cadence = 50
-oar_depth = 0 # in cm. If 0, there is no oar
+oar_depth = 75 # in cm. If 0, there is no oar
 
 destination = [6.6024, 58.0317] # lon lat format
-departure_points = [[11.9518, 57.3253]] #[10.7875, 57.2335]
+departure_points = [[8.0888, 56.7981]] #[10.7875, 57.2335]
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
@@ -194,7 +194,7 @@ model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
 #%%
 # Calculate the trajectories
 
-single_result = voyager.Traverser.trajectory_by_day(mode = mode,
+single_result = voyager.Traverser.trajectory(mode = mode,
                                              craft = craft, 
                                              duration = duration,
                                              timestep = timestep, 
