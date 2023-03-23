@@ -16,6 +16,8 @@ def load_yaml(file):
     return config
 
 
+high_wave_limit = 2
+
 data_directory = "/media/mtomasini/LaCie/LIR/"
 vessel_cfg_path = "./voyager/configs/vessels.yml"
 replicates = 1
@@ -94,20 +96,25 @@ for replicate in range(1, replicates + 1):
         with open(data_directory + '/results/Experiment1A/' + filename, 'w') as file:
             json.dump(trajectory, file, indent=4)
 
+        trajectory_data = trajectory['features'][0]['properties']
+
+        # calculate for how many hours high waves were encountered:
+        high_waves_count = sum(1 for i in trajectory_data['trip_waves'] if (i > high_wave_limit))
+        duration_in_high_waves = high_waves_count*timestep/3600     # time in hours 
+
         data_to_append = pd.DataFrame([{
              'Start day': date,
-             'Duration': trajectory['features'][0]['properties']['duration'],
+             'Duration': trajectory_data['duration'],
+             'HeighestWave': max(trajectory_data['trip_waves']),
+             'HoursOfStorm': duration_in_high_waves,
              'Sunrise': voyager.utils.calculate_sunrise(date, departure_points[0]),
              'Sunset': voyager.utils.calculate_sunset(date, departure_points[0])
         }])
 
-        # avg_durations = pd.concat([avg_durations, data_to_append], ignore_index=True)
-        avg_durations = data_to_append
-
         if os.path.exists(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv'):
-            avg_durations.to_csv(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv', mode='a', sep='\t', header=False, index=False)
+            data_to_append.to_csv(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv', mode='a', sep='\t', header=False, index=False)
         else:
-            avg_durations.to_csv(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv', mode='w', sep='\t', header=True, index=False)
+            data_to_append.to_csv(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv', mode='w', sep='\t', header=True, index=False)
 
     
 end_time = time.time()
