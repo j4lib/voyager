@@ -92,7 +92,7 @@ class Model:
             latitude (float): Latitude (WGS84)
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: The current and wind velocities respectively
+            Tuple[float, float]: The current and wind velocities respectively
         """
 
         assert self.chart != None
@@ -120,13 +120,38 @@ class Model:
         # xoak Documentation for how this is set up).
         #self.chart.u_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
         u_selected_grid_cell = self.chart.u_wind_all.xoak.sel(longitude=xr.DataArray([longitude, ]), latitude=xr.DataArray([latitude,]))
-        v_x_wind = float(u_selected_grid_cell.sel(time=current_time, method="nearest").values[0])
+        v_x_wind = float(u_selected_grid_cell.sel(time=current_time, method="nearest").values)
 
         #self.chart.v_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
         v_selected_grid_cell = self.chart.v_wind_all.xoak.sel(longitude=xr.DataArray([longitude, ]), latitude=xr.DataArray([latitude,]))
-        v_y_wind = float(v_selected_grid_cell.sel(time=current_time, method="nearest").values[0])
+        v_y_wind = float(v_selected_grid_cell.sel(time=current_time, method="nearest").values)
 
         return (np.array([v_x_current, v_y_current]), np.array([v_x_wind, v_y_wind]))
+
+    def wave_height(self, t: float, longitude: float, latitude: float) -> Tuple[np.ndarray, np.ndarray]:
+        """Extracts wave height at a specific time and set of WGS84 coordinates without interpolation. 
+        This function is optimized for our current datasets.
+
+        Args:
+            t (float): time
+            longitude (float): Longitude (WGS84)
+            latitude (float): Latitude (WGS84)
+
+        Returns:
+            float: The current wave height
+        """
+        assert self.chart != None
+
+        N_SECONDS_IN_DAY = 86400
+        current_time = self.chart.start_date + pd.Timedelta(t*N_SECONDS_IN_DAY, unit="seconds")
+
+        # Calculate current speeds
+        wave_height = float(self.chart.waves_all.sel(time=current_time, 
+                                                     longitude=longitude, 
+                                                     latitude=latitude,
+                                                     method="nearest"))
+
+        return wave_height
 
 
     def run(self, vessel: Vessel) -> Vessel:
@@ -169,6 +194,7 @@ class Model:
             
             # Calculate interpolated velocity at current coordinates
             c, w = self.velocity(t, longitude, latitude)
+            waves = self.wave_height(t, longitude, latitude)
 
             # if c, w, None: either it's land, or interpolate has boundaries issues, 
             # so just test velocity on the real data before determining whether it's land.
@@ -193,7 +219,7 @@ class Model:
             vessel.update_distance(dx, dy)\
                   .update_position(longitude, latitude)\
                   .update_mean_speed(self.dt)\
-                  .update_encountered_environment(c, w)
+                  .update_encountered_environment(c, w, waves)
 
             # Check progress along route
             is_arrived = vessel.has_arrived(longitude, latitude, target_tol)

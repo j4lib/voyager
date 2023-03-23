@@ -122,11 +122,11 @@ def load_data(start: pd.Timestamp, end: pd.Timestamp, bbox: List, data_directory
         end (pd.Timestamp): The end date
         bbox (List): Bounding box of where to fetch data
         data_directory (str): Root directory of the data files
-        source (str): Data source, either "currents" or "winds"
+        source (str): Data source, either "currents", "winds" or "waves"
         parallel (bool, optional): Whether to load the data in parallel. Defaults to False.
 
     Raises:
-        ValueError: Raised if the data source is not "currents" or "winds"
+        ValueError: Raised if the data source is not "currents", "winds" or "waves"
 
     Returns:
         Tuple[xr.DataArray, xr.DataArray]: A tuple of the velocity x (east-west) and y (south-north) components respectively.
@@ -140,6 +140,10 @@ def load_data(start: pd.Timestamp, end: pd.Timestamp, bbox: List, data_directory
     years = set(years)
 
     dates = pd.date_range(start, end)
+
+    # this is snippet is to avoid copying data from my Full_Data folder to a "waves" folder.
+    if source == "waves":
+        source = "Full_data/waves_northwest"
     
     filenames = []
     for year in years:
@@ -156,11 +160,17 @@ def load_data(start: pd.Timestamp, end: pd.Timestamp, bbox: List, data_directory
         data = xr.open_mfdataset(filenames, parallel=parallel)
         data = ecmwf_to_xr(data)
 
+    elif source == "Full_data/waves_northwest":
+        data = xr.open_mfdataset(filenames, parallel=parallel)
+
     else:
         raise ValueError("Source must be currents or winds.")
 
     data = data.sel(time=slice(start, end)).load()
-    return data.u, data.v
+    if source in ["currents", "winds"]:
+        return data.u, data.v
+    elif source == "Full_data/waves_northwest":
+        return data.VHM0
 
 def calculate_sunrise(date: pd.Timestamp, position: Tuple[float, float]):
     """Calculates the time of sunrise based on date, longitude and latitude, using the ephem package.

@@ -96,6 +96,7 @@ class Vessel:
         self.duration = 0
         self.encountered_current = []
         self.encountered_winds = []
+        self.encountered_waves = []
         self.stops = []
         self.coord_stops = []
 
@@ -259,7 +260,7 @@ class Vessel:
 
         return self
 
-    def update_encountered_environment(self, current: Tuple[float, float], wind: Tuple[float, float]):
+    def update_encountered_environment(self, current: Tuple[float, float], wind: Tuple[float, float], waves: float):
         """Updates the currents and winds encountered in the simulation.
 
         Args:
@@ -268,6 +269,8 @@ class Vessel:
         """
         self.encountered_current.append([current[0], current[1]])
         self.encountered_winds.append([wind[0], wind[1]])
+        self.encountered_waves.append(waves)
+
 
         return self
     
@@ -355,6 +358,7 @@ class Vessel:
                     "duration": self.duration*dt / 3600, # in hours
                     "trip_currents": self.encountered_current,
                     "trip_winds": self.encountered_winds,
+                    "trip_waves": self.encountered_waves,
                     "stop_times": self.stops,
                     "stop_coords": self.coord_stops,
                 }          

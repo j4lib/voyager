@@ -34,6 +34,7 @@ class Chart:
         v_wind_all (Xarray): vertical component of winds, as read from data
         u_wind (RegularGridInterpolator): horizontal component of interpolated wind data
         v_wind (RegularGridInterpolator): vertical component of interpolated wind data
+        waves_all (Xarray): height of waves, as read from data
         longitudes (array): grid of longitudes on the chart
         latitudes(array): grid of latitudes on the chart
         grid (Grid): weighted grid to implement different kinds of weighting in the trajectories
@@ -60,6 +61,7 @@ class Chart:
         self.v_current_all = None
         self.u_wind_all = None
         self.v_wind_all = None
+        self.waves_all = None
 
         self.longitudes = None
         self.latitudes  = None
@@ -91,6 +93,12 @@ class Chart:
                                                                     bbox=self.bbox,
                                                                     data_directory=self.data_dir,
                                                                     source="winds")
+            
+            self.waves_all                          = utils.load_data(start=self.start_date, 
+                                                                    end=self.end_date,
+                                                                    bbox=self.bbox,
+                                                                    data_directory=self.data_dir,
+                                                                    source="waves")
             
             # Addition to use normal coordinates in models.py.
             self.u_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
