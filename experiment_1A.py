@@ -25,8 +25,8 @@ lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '2016-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
-end_date = '2020-12-31'
+start_date = '1993-01-02' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
+end_date = '1995-12-31'
 
 # Model options
 tolerance = 0.001
@@ -39,12 +39,12 @@ duration = 5 # max duration in days
 timestep = 900 # in seconds, 900 s = 15 minutes
 mode = 'paddling'
 craft = 'hjortspring' # the ones in the config
-vessel_weight = 2000 # in kg
+vessel_weight = 3000 # in kg
 number_of_paddlers = 16
 rowing_cadence = 50
-oar_depth = 0 # in cm. If 0, there is no oar
+oar_depth = 75 # in cm. If 0, there is no oar
 
-destination = [7.4652, 57.9131]  # lon lat format
+destination = [6.6024, 58.0317]  # lon lat format
 departure_points = [[8.5693, 57.1543]] # 
 
 ##### SIMULATION INITIALIZATION

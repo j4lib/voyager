@@ -120,11 +120,11 @@ class Model:
         # xoak Documentation for how this is set up).
         #self.chart.u_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
         u_selected_grid_cell = self.chart.u_wind_all.xoak.sel(longitude=xr.DataArray([longitude, ]), latitude=xr.DataArray([latitude,]))
-        v_x_wind = u_selected_grid_cell.sel(time=current_time, method="nearest")
+        v_x_wind = float(u_selected_grid_cell.sel(time=current_time, method="nearest").values[0])
 
         #self.chart.v_wind_all.xoak.set_index(['longitude', 'latitude'], index_type='scipy_kdtree')
         v_selected_grid_cell = self.chart.v_wind_all.xoak.sel(longitude=xr.DataArray([longitude, ]), latitude=xr.DataArray([latitude,]))
-        v_y_wind = v_selected_grid_cell.sel(time=current_time, method="nearest")
+        v_y_wind = float(v_selected_grid_cell.sel(time=current_time, method="nearest").values[0])
 
         return (np.array([v_x_current, v_y_current]), np.array([v_x_wind, v_y_wind]))
 

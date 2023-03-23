@@ -141,10 +141,10 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1995-07-01'
-end_date = '1995-07-31'
+start_date = '1993-01-02'
+end_date = '1993-01-10'
 follows_route = False
-weights = [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Neutral: [1,1,1,1]
+weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Neutral: [1,1,1,1]
 iterations = [15, 5, 3, 1]
 
 # Model options
@@ -154,7 +154,7 @@ sigma = 0 # 100
 # Trajectory options
 launch_freq = 3 # days
 duration = 3 # max duration in days
-timestep = 30 # 900 s
+timestep = 900 # 900 s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
 vessel_weight = 3000 # in kg
@@ -211,30 +211,34 @@ single_result = voyager.Traverser.trajectory(mode = mode,
                                              model = model,
                                              follows_route = follows_route)
 
+#%%
+# import json 
+# with open('./test_json', 'w') as file:
+#     json.dump(single_result, file, indent=4)
 
-# %%
+#%%
 f, ax = plot(single_result, bbox, show_route=follows_route)
 plt.show()
 
 #%%
-results = voyager.Traverser.trajectories(mode = mode,
-                                        craft = craft, 
-                                        duration = duration,
-                                        timestep = timestep, 
-                                        destination = destination,  
-                                        paddlers = number_of_paddlers,
-                                        weight = vessel_weight,
-                                        cadence = rowing_cadence,
-                                        oar_depth = oar_depth,   
-                                        start_date = start_date,
-                                        end_date = end_date,
-                                        bbox = bbox, 
-                                        departure_point = departure_points[0],
-                                        vessel_params=vessel_cfg,
-                                        launch_day_frequency = launch_freq,
-                                        chart = chart, 
-                                        model = model,
-                                        follows_route = follows_route)
-#%%
-f, ax = plot_multiple(results, bbox, show_route=follows_route)
-plt.show()
+# results = voyager.Traverser.trajectories(mode = mode,
+#                                         craft = craft, 
+#                                         duration = duration,
+#                                         timestep = timestep, 
+#                                         destination = destination,  
+#                                         paddlers = number_of_paddlers,
+#                                         weight = vessel_weight,
+#                                         cadence = rowing_cadence,
+#                                         oar_depth = oar_depth,   
+#                                         start_date = start_date,
+#                                         end_date = end_date,
+#                                         bbox = bbox, 
+#                                         departure_point = departure_points[0],
+#                                         vessel_params=vessel_cfg,
+#                                         launch_day_frequency = launch_freq,
+#                                         chart = chart, 
+#                                         model = model,
+#                                         follows_route = follows_route)
+# #%%
+# f, ax = plot_multiple(results, bbox, show_route=follows_route)
+# plt.show()

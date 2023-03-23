@@ -342,9 +342,7 @@ class Vessel:
                 "type": "Feature",
                 "geometry": {
                     "type": "LineString",
-                    # "coordinates": [[y, x] for x, y in vessel.trajectory],
                     "coordinates": self.trajectory,
-
                 },
                 "properties": {
                     "start_date": start_date,
@@ -358,7 +356,7 @@ class Vessel:
                     "trip_currents": self.encountered_current,
                     "trip_winds": self.encountered_winds,
                     "stop_times": self.stops,
-                    "stop_coords": self.coord_stops
+                    "stop_coords": self.coord_stops,
                 }          
             }
         )
