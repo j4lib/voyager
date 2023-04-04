@@ -1,3 +1,14 @@
+"""
+EXPERIMENT 1A
+
+Author: Matteo Tomasini
+Date: 30.03.2023
+
+Here we simulate experiment 1A (cf. NOTES.md). In this experiment, we run a direct trip between Thy and Lista.
+The chosen boat is the Hjortspring boat, with 16 paddlers paddling at 50 strokes per minute, weighing 3000 kg, and 
+with steering oars 75 cm deep.  
+"""
+
 import os
 import voyager
 import pandas as pd
@@ -16,7 +27,7 @@ def load_yaml(file):
     return config
 
 
-high_wave_limit = 2
+high_wave_limit = 2 # what height of waves do we consider "stormy"? (in meters)
 
 data_directory = "/media/mtomasini/LaCie/LIR/"
 vessel_cfg_path = "./voyager/configs/vessels.yml"
@@ -27,8 +38,8 @@ lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '1993-01-02' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
-end_date = '1993-01-31'
+start_date = '2009-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
+end_date = '2011-12-31'
 
 # Model options
 tolerance = 0.001
@@ -46,8 +57,8 @@ number_of_paddlers = 16
 rowing_cadence = 50
 oar_depth = 75 # in cm. If 0, there is no oar
 
-destination = [6.6024, 58.0317]  # lon lat format
-departure_points = [[8.5693, 57.1543]] # 
+destination = [7.3663, 57.9517]  # lon lat format
+departure_points = [[8.0888, 56.7981]] # 
 
 ##### SIMULATION INITIALIZATION
 

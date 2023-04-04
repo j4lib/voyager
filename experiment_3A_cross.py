@@ -1,10 +1,12 @@
 """
-EXPERIMENT 1B
+EXPERIMENT 3A
 
 Author: Matteo Tomasini
 Date: 27.03.2023
 
-Here we simulate experiment 1B (cf. NOTES.md). In this experiment, we run a direct trip between Lista and Thy.
+Here we simulate experiment 3A (cf. NOTES.md). In this experiment, we run starting from West Thy, crossing 
+the Skagerrak, then navigating along the the West Coast of Sweden to Lista.
+
 The chosen boat is the Hjortspring boat, with 16 paddlers paddling at 50 strokes per minute, weighing 3000 kg, and 
 with steering oars 75 cm deep.
 """
@@ -27,21 +29,19 @@ def load_yaml(file):
     return config
 
 
-
-high_wave_limit = 2
+high_wave_limit = 2 # what height of waves do we consider "stormy"? (in meters)
 
 data_directory = "/media/mtomasini/LaCie/LIR/"
 vessel_cfg_path = "./voyager/configs/vessels.yml"
 replicates = 1
-
 
 # Chart options
 lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '2015-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
-end_date = '2020-12-31'
+start_date = '1993-01-02' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
+end_date = '1993-01-31'
 
 # Model options
 tolerance = 0.001
@@ -54,13 +54,13 @@ duration = 5 # max duration in days
 timestep = 900 # in seconds, 900 s = 15 minutes
 mode = 'paddling'
 craft = 'hjortspring' # the ones in the config
-vessel_weight = 2000 # in kg
+vessel_weight = 3000 # in kg
 number_of_paddlers = 16
 rowing_cadence = 50
-oar_depth = 0 # in cm. If 0, there is no oar
+oar_depth = 75 # in cm. If 0, there is no oar
 
-destination = [8.0888, 56.7981]  # lon lat format
-departure_points = [[7.3663, 57.9517]] # 
+destination = [6.6024, 58.0317]  # lon lat format
+departure_points = [[8.5693, 57.1543]] # 
 
 ##### SIMULATION INITIALIZATION
 
@@ -106,7 +106,7 @@ for replicate in range(1, replicates + 1):
                                                 follows_route = follows_route)
         
         filename = date.strftime('%Y-%m-%d') + f'_{replicate}'
-        with open(data_directory + '/results/Experiment1B/' + filename, 'w') as file:
+        with open(data_directory + '/results/Experiment1A/' + filename, 'w') as file:
             json.dump(trajectory, file, indent=4)
 
         trajectory_data = trajectory['features'][0]['properties']
@@ -124,12 +124,12 @@ for replicate in range(1, replicates + 1):
              'Sunset': voyager.utils.calculate_sunset(date, departure_points[0])
         }])
 
-        if os.path.exists(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv'):
-            data_to_append.to_csv(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv', mode='a', sep='\t', header=False, index=False)
+        if os.path.exists(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv'):
+            data_to_append.to_csv(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv', mode='a', sep='\t', header=False, index=False)
         else:
-            data_to_append.to_csv(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv', mode='w', sep='\t', header=True, index=False)
+            data_to_append.to_csv(data_directory + f'/results/Experiment1A/Aggregates/replicate_{replicate}.csv', mode='w', sep='\t', header=True, index=False)
 
-
+    
 end_time = time.time()
 total_time = end_time - start_time
 total_time = time.strftime("%H:%M:%S", time.gmtime(total_time))

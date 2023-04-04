@@ -162,8 +162,8 @@ number_of_paddlers = 16
 rowing_cadence = 50
 oar_depth = 75 # in cm. If 0, there is no oar
 
-destination = [6.6024, 58.0317] # lon lat format
-departure_points = [[8.0888, 56.7981]] #[10.7875, 57.2335]
+destination = [8.0888, 56.7981] # lon lat format
+departure_points = [[7.3663, 57.9517]] #[10.7875, 57.2335]
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
