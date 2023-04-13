@@ -2,7 +2,7 @@
 EXPERIMENT 1B
 
 Author: Matteo Tomasini
-Date: 27.03.2023
+Date: 04.04.2023
 
 Here we simulate experiment 1B (cf. NOTES.md). In this experiment, we run a direct trip between Lista and Thy.
 The chosen boat is the Hjortspring boat, with 16 paddlers paddling at 50 strokes per minute, weighing 3000 kg, and 
@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 import time
 
 from plotting_tool import plot_multiple
+
+import notify2
 
 def load_yaml(file):
 
@@ -40,7 +42,7 @@ lon_min = 5.692326
 lat_min = 53.671019
 lon_max = 13.536054
 lat_max = 59.388759
-start_date = '2015-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
+start_date = '2016-01-01' # ! If 1993, trips start on Jan 2, since Jan 1 has data starting only at noon
 end_date = '2020-12-31'
 
 # Model options
@@ -54,10 +56,10 @@ duration = 5 # max duration in days
 timestep = 900 # in seconds, 900 s = 15 minutes
 mode = 'paddling'
 craft = 'hjortspring' # the ones in the config
-vessel_weight = 2000 # in kg
+vessel_weight = 3000 # in kg
 number_of_paddlers = 16
 rowing_cadence = 50
-oar_depth = 0 # in cm. If 0, there is no oar
+oar_depth = 75 # in cm. If 0, there is no oar
 
 destination = [8.0888, 56.7981]  # lon lat format
 departure_points = [[7.3663, 57.9517]] # 
@@ -68,6 +70,8 @@ departure_points = [[7.3663, 57.9517]] #
 bbox = [lon_min, lat_min, lon_max, lat_max]
 
 # Convert time from datetime to timestamp
+start_date_string = start_date
+end_date_string = end_date
 start_date = pd.Timestamp(start_date)
 end_date = pd.Timestamp(end_date) # end date is the last date we will simulate
 
@@ -134,4 +138,7 @@ end_time = time.time()
 total_time = end_time - start_time
 total_time = time.strftime("%H:%M:%S", time.gmtime(total_time))
 
-print("It took " + total_time + " to perform this simulation.")
+time_message = "It took " + total_time + " to perform the simulation from " + start_date_string + " to " + end_date_string + "!"
+notify2.init('Voyager')
+notification = notify2.Notification('Experiment 1B finished!', time_message)
+notification.show()
