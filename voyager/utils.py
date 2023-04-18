@@ -13,6 +13,7 @@ This file can be imported as module and contains the following functions:
     * calculate_sunrise(date, position): Calculates the time of sunrise based on date, longitude and latitude, using the ephem package
     * calculate_sunset(date, position): Calculates the time of sunset based on date, longitude and latitude, using the ephem package
     * is_it_night(date_and_time, position): Calculates whether a certain hour during a certain date at a certain position is nighttime.
+    * calculate_twilights(date, position, type_of_twilight): Calculates the time of twilights based on date, longitude and latitude, using the ephem package.
 """
 
 import numpy as np
@@ -230,3 +231,37 @@ def is_it_night(date_and_time: pd.Timestamp, position: Tuple[float, float]) -> b
 
     is_night = (date_and_time <= sunrise) or (sunset <= date_and_time)
     return is_night
+
+
+def calculate_twilights(date: pd.Timestamp, position: Tuple[float, float], type_of_twilight: str  = "civil"):
+    """Calculates the time of twilights based on date, longitude and latitude, using the ephem package.
+
+    Args:
+        date (pd.Timestamp): day of the year
+        position (Tuple[float, float]): place in format [longitude, latitude]
+        type_of_twilight (str): "civil", "nautical" or "astronomical" twilight. "sunrise" will return actual sunrise and sunset. Default is "civil".
+
+    Returns:
+        pd.Timestamp: full date and time of sunset on chosen day
+    """
+    earth = ephem.Observer()
+    earth.lon = str(position[0])
+    earth.lat = str(position[1])
+    earth.date = date
+
+    sun = ephem.Sun()
+    sun.compute()
+
+    if type_of_twilight == "civil":
+        earth.horizon = "-6"
+    elif type_of_twilight == "nautical":
+        earth.horizon = "-12"
+    elif type_of_twilight == "astronomical":
+        earth.horizon = "-18"
+    elif type_of_twilight == "sunrise":
+        pass
+
+    morning_twilight = ephem.localtime(earth.previous_rising(sun))
+    evening_twilight = ephem.localtime(earth.next_setting(sun))
+
+    return pd.Timestamp(morning_twilight), pd.Timestamp(evening_twilight)

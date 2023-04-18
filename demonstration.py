@@ -141,10 +141,10 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1993-01-02'
-end_date = '1993-01-10'
-follows_route = False
-weights = [1, 1, 1, 1] # Interesting: [5, 5, 1, 100] # Neutral: [1,1,1,1]
+start_date = '1993-07-10'
+end_date = '1993-07-15'
+follows_route = True
+weights = [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Neutral: [1,1,1,1]
 iterations = [15, 5, 3, 1]
 
 # Model options
@@ -153,8 +153,8 @@ sigma = 0 # 100
 
 # Trajectory options
 launch_freq = 3 # days
-duration = 3 # max duration in days
-timestep = 900 # 900 s
+duration = 30 # max duration in days
+timestep = 300 # 900 s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
 vessel_weight = 3000 # in kg
@@ -162,7 +162,7 @@ number_of_paddlers = 16
 rowing_cadence = 50
 oar_depth = 75 # in cm. If 0, there is no oar
 
-destination = [8.0888, 56.7981] # lon lat format
+destination = [11.6486, 57.6065] # lon lat format
 departure_points = [[7.3663, 57.9517]] #[10.7875, 57.2335]
 
 # Create the bounding box, observe the order (lonlat)
