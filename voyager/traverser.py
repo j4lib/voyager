@@ -167,7 +167,7 @@ class Traverser:
                                       params = vessel_params[mode][craft])
 
         # Interpolate the data for only the duration specified
-        start_date = utils.calculate_sunrise(chart.start_date, departure_point)
+        start_date, sunset = utils.calculate_twilights(chart.start_date, departure_point, "civil")
         chart.interpolate(start_date, duration)
 
         # Use the interpolated values in the model
@@ -194,7 +194,7 @@ class Traverser:
             weight = 0,
             cadence = 0,
             oar_depth = 0,     
-            date = '', 
+            start_date = '', 
             bbox = [], 
             departure_point = [], 
             data_directory = '', 
@@ -214,7 +214,7 @@ class Traverser:
             timestep (int, optional): Timestep for updating the speed and position of the vessels. Defaults to 1.
             destination (list, optional): Destination coordinates in WGS84. Defaults to [].
             speed (int, optional): Paddling speed in m/s. Defaults to 2.
-            date (pd.Timedelta, optional): Date as a YYYY-MM-DD string. Defaults to ''.
+            start_date (pd.Timedelta, optional): Date as a YYYY-MM-DD string. Defaults to ''.
             bbox (list, optional): Bounding box of the map. Defaults to [].
             departure_point (list, optional): Departure point in WGS84. Defaults to [].
             data_directory (str, optional): The root directory of the velocity data. Defaults to ''.
@@ -233,7 +233,7 @@ class Traverser:
         # and the wind/current data for that region
         # It is shared by all vessels
         if not chart:
-            start_date = pd.to_datetime(date, infer_datetime_format=True)
+            start_date = pd.to_datetime(start_date, infer_datetime_format=True)
             end_date   = start_date + pd.Timedelta(duration, unit='days')
             chart = Chart(bbox, start_date, end_date).load(data_directory, **chart_kwargs)
         
@@ -246,7 +246,7 @@ class Traverser:
                                       craft = craft,
                                       chart = chart,
                                       destination = destination,
-                                      launch_date = date,
+                                      launch_date = start_date,
                                       speed = speed,
                                       paddlers = paddlers,
                                       weight = weight,
@@ -257,7 +257,7 @@ class Traverser:
                                       params = vessel_params[mode][craft])
 
         # Interpolate the data for only the duration specified
-        start_date = utils.calculate_sunrise(chart.start_date, departure_point)
+        start_date, sunset = utils.calculate_twilights(chart.start_date, departure_point, "civil")
         chart.interpolate(start_date, duration)
 
         # Use the interpolated values in the model
@@ -341,7 +341,7 @@ class Traverser:
         results = []
         for date in dates[::launch_day_frequency]:
             # Calculate sunrise
-            date = utils.calculate_sunrise(date, departure_point)
+            date, sunset = utils.calculate_twilights(date, departure_point, "civil")
 
             vessel = Vessel.from_position(departure_point, 
                                           craft = craft,
@@ -414,7 +414,7 @@ class Traverser:
                                             vessel_config=self.vessel_config)
             
             # Calculate sunrise
-            date = utils.calculate_sunrise(date, self.departure_points[0])
+            date, sunset = utils.calculate_twilights(date, self.departure_points[0], "civil")
 
             # Interpolate the data for only the duration specified
             chart.interpolate(date, self.duration)
@@ -425,7 +425,6 @@ class Traverser:
             trajectories = []
 
             for vessel in vessels:
-
                 trajectories.append(model.run(vessel))
 
             # Add the trajectories for the date

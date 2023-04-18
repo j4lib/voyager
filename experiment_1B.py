@@ -86,11 +86,11 @@ for replicate in range(1, replicates + 1):
     # create empty dataframe for aggregates
     avg_durations = pd.DataFrame(columns = ['Start day', 'Duration', 'Sunrise', 'Sunset'])
 
-    for date in simulated_dates:
-        stop_date = date + pd.Timedelta(duration, unit="days") # date at which the replicate stops
+    for start_date in simulated_dates:
+        stop_date = start_date + pd.Timedelta(duration, unit="days") # date at which the replicate stops
 
         # Create chart
-        chart = voyager.Chart(bbox, date, stop_date).load(data_directory)
+        chart = voyager.Chart(bbox, start_date, stop_date).load(data_directory)
         model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
 
         trajectory = voyager.Traverser.trajectory(mode = mode,
@@ -109,7 +109,7 @@ for replicate in range(1, replicates + 1):
                                                 model = model,
                                                 follows_route = follows_route)
         
-        filename = date.strftime('%Y-%m-%d') + f'_{replicate}'
+        filename = start_date.strftime('%Y-%m-%d') + f'_{replicate}'
         with open(data_directory + '/results/Experiment1B/' + filename, 'w') as file:
             json.dump(trajectory, file, indent=4)
 
@@ -120,12 +120,12 @@ for replicate in range(1, replicates + 1):
         duration_in_high_waves = high_waves_count*timestep/3600     # time in hours 
 
         data_to_append = pd.DataFrame([{
-             'Start day': date,
+             'Start day': start_date,
              'Duration': trajectory_data['duration'],
              'HeighestWave': max(trajectory_data['trip_waves']),
              'HoursOfStorm': duration_in_high_waves,
-             'Sunrise': voyager.utils.calculate_sunrise(date, departure_points[0]),
-             'Sunset': voyager.utils.calculate_sunset(date, departure_points[0])
+             'Sunrise': voyager.utils.calculate_sunrise(start_date, departure_points[0]),
+             'Sunset': voyager.utils.calculate_sunset(start_date, departure_points[0])
         }])
 
         if os.path.exists(data_directory + f'/results/Experiment1B/Aggregates/replicate_{replicate}.csv'):

@@ -7,7 +7,7 @@ import xarray as xr
 from .vessel import Vessel
 from .chart import Chart
 from .move import Displacement
-from .utils import calculate_sunrise, is_it_night
+from .utils import calculate_sunrise, is_it_night, calculate_twilights
 
 class Model:
     """A class to represent the model being simulated. A "model" in this context represents the set of modelling choices.
@@ -259,7 +259,7 @@ class Model:
         # Initialization
         dx = 0
         dy = 0
-        initial_day_time = calculate_sunrise(vessel.launch_date.date(), [longitude, latitude])
+        initial_day_time, final_day_time = calculate_twilights(vessel.launch_date.date(), [longitude, latitude], "civil")
         is_night = False
 
         target_tol = (self.dt) * self.tolerance # 1/1000 is a good value
@@ -277,6 +277,7 @@ class Model:
             
             # Calculate interpolated velocity at current coordinates
             c, w = self.velocity(t, longitude, latitude)
+            waves = self.wave_height(t, longitude, latitude)
 
             # if c, w, None: either it's land, or interpolate has boundaries issues, 
             # so just test velocity on the real data before determining whether it's land.
@@ -300,7 +301,7 @@ class Model:
             vessel.update_distance(dx, dy)\
                   .update_position(longitude, latitude)\
                   .update_mean_speed(self.dt)\
-                  .update_encountered_environment(c, w)
+                  .update_encountered_environment(c, w, waves)
 
             # Check progress along route
             is_arrived = vessel.has_arrived(longitude, latitude, target_tol)

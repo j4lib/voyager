@@ -215,23 +215,6 @@ def calculate_sunset(date: pd.Timestamp, position: Tuple[float, float]):
     sunset = ephem.localtime(earth.next_setting(sun))
     return pd.Timestamp(sunset)
 
-def is_it_night(date_and_time: pd.Timestamp, position: Tuple[float, float]) -> bool:
-    """Calculates whether a set of coordinates refer to a moment in the day or in the night. 
-
-    Args:
-        date_and_time (pd.Timestamp): day of the year
-        position (Tuple[float, float]): place in format [longitude, latitude]
-
-    Returns:
-        bool: returns whether the point is during the night or not
-    """
-    what_day = date_and_time.date()
-    sunrise = calculate_sunrise(what_day, position)
-    sunset = calculate_sunset(what_day, position)
-
-    is_night = (date_and_time <= sunrise) or (sunset <= date_and_time)
-    return is_night
-
 
 def calculate_twilights(date: pd.Timestamp, position: Tuple[float, float], type_of_twilight: str  = "civil"):
     """Calculates the time of twilights based on date, longitude and latitude, using the ephem package.
@@ -265,3 +248,21 @@ def calculate_twilights(date: pd.Timestamp, position: Tuple[float, float], type_
     evening_twilight = ephem.localtime(earth.next_setting(sun))
 
     return pd.Timestamp(morning_twilight), pd.Timestamp(evening_twilight)
+
+
+
+def is_it_night(date_and_time: pd.Timestamp, position: Tuple[float, float], type_of_twilight="sunrise") -> bool:
+    """Calculates whether a set of coordinates refer to a moment in the day or in the night. 
+
+    Args:
+        date_and_time (pd.Timestamp): day of the year
+        position (Tuple[float, float]): place in format [longitude, latitude]
+
+    Returns:
+        bool: returns whether the point is during the night or not
+    """
+    what_day = date_and_time.date()
+    sunrise, sunset = calculate_twilights(what_day, position, type_of_twilight)
+    
+    is_night = (date_and_time <= sunrise) or (sunset <= date_and_time)
+    return is_night
