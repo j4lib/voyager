@@ -261,7 +261,7 @@ def calculate_twilights(date: pd.Timestamp, position: Tuple[float, float], type_
     elif type_of_twilight == "sunrise":
         pass
 
-    morning_twilight = ephem.localtime(earth.previous_rising(sun))
+    morning_twilight = ephem.localtime(earth.next_rising(sun))
     evening_twilight = ephem.localtime(earth.next_setting(sun))
 
     return pd.Timestamp(morning_twilight), pd.Timestamp(evening_twilight)
