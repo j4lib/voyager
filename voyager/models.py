@@ -272,7 +272,7 @@ class Model:
 
             if is_night:
                 # if here it's night from last step, re-calculate for next loop, then skip Displacement update.
-                is_night = is_it_night(current_day_time, [longitude, latitude])
+                is_night = is_it_night(current_day_time, [longitude, latitude], "civil")
                 continue
             
             # Calculate interpolated velocity at current coordinates
@@ -310,7 +310,7 @@ class Model:
                 break
 
             current_day_time = initial_day_time + pd.Timedelta(t, unit="days")
-            is_night = is_it_night(current_day_time, [longitude, latitude])
+            is_night = is_it_night(current_day_time, [longitude, latitude], "civil")
 
             if is_night:
                 # if the code arrived here, it means that at the last iteration it was day.
