@@ -141,7 +141,7 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1993-07-10'
+start_date = '1993-07-05'
 end_date = '1993-07-20'
 follows_route = True
 
@@ -167,6 +167,18 @@ oar_depth = 75 # in cm. If 0, there is no oar
 
 destination = [11.6486, 57.6065] # lon lat format
 departure_points = [[7.3663, 57.9517]] #[10.7875, 57.2335]
+route = [destination, 
+         [11.200, 57.9661],
+         [10.7089, 58.4802], 
+         [10.8875, 58.7518], 
+         [10.573, 58.9017], 
+         [9.6625, 58.688], 
+         [8.65, 58.08], 
+         [7.438, 57.84],
+         departure_points[0]]
+
+# TOFIX When using Traverser.trajectory() methods, route gets erased (it's a pointer, not a copy).
+# If one needs to run a trajectory multiple times, the route requires to be re-initialized.
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
@@ -202,6 +214,7 @@ single_result = voyager.Traverser.trajectory_by_day(mode = mode,
                                              duration = duration,
                                              timestep = timestep, 
                                              destination = destination,
+                                             route = route,
                                              start_date = start_date,
                                              paddlers = number_of_paddlers,
                                              weight = vessel_weight,

@@ -33,8 +33,8 @@ class Vessel:
         params (Dict): other vessel features.
         
     Methods:
-        from_position(point, chart, destination, interval , **kwargs): Creates a vessel from a start position.
-        from_positions(point, chart, destination, interval , **kwargs): Generates a list of vessels from multiple positions.
+        from_position(point, chart, destination, route, interval , **kwargs): Creates a vessel from a start position.
+        from_positions(point, chart, destination, route, interval , **kwargs): Generates a list of vessels from multiple positions.
         update_distance(x, y): Updates position and records it to the trajectory.
         update_mean_speed(dt): Updates the total mean speed of the trajectory from the total distance travelled.
         update_encountered_environment(current, wind): Updates the currents and winds encountered in the simulation.
@@ -118,6 +118,7 @@ class Vessel:
     def from_position(cls, point: Tuple[float, float], 
                            chart: chart.Chart = None, 
                            destination: Tuple[float, float] = None, 
+                           route: List[Tuple[float, float]] = None,
                            interval: int = 5, 
                            **kwargs):
         """Creates a vessel from a start position, using a pre-supplied Chart object and destination.
@@ -141,28 +142,28 @@ class Vessel:
         x, y = point
 
         if (destination is not None) and (chart is not None):
+            # if route was not supplied (is None) and with_route = True, generate a route with Astar:
+            if (route is None) and kwargs['with_route']:
+                # Find the closest latlon to the start and destination
+                i = geo.closest_coordinate_index(chart.longitudes, x)
+                j = geo.closest_coordinate_index(chart.latitudes, y)
 
-            # Find the closest latlon to the start and destination
-            i = geo.closest_coordinate_index(chart.longitudes, x)
-            j = geo.closest_coordinate_index(chart.latitudes, y)
+                i_goal = geo.closest_coordinate_index(chart.longitudes, destination[0])
+                j_goal = geo.closest_coordinate_index(chart.latitudes, destination[1]) 
 
-            i_goal = geo.closest_coordinate_index(chart.longitudes, destination[0])
-            j_goal = geo.closest_coordinate_index(chart.latitudes, destination[1]) 
+                # Find the optimal route to the target
+                astar = search.Astar(chart.grid)
+                came_from, cost_so_far = astar.search(start=(j, i), goal=(j_goal, i_goal))
 
-            # Find the optimal route to the target
-            astar = search.Astar(chart.grid)
-            came_from, cost_so_far = astar.search(start=(j, i), goal=(j_goal, i_goal))
+                # Chart the route
+                try:
+                    route = astar.reconstruct_path(came_from, start=(j, i), goal=(j_goal, i_goal))
+                    route = [(chart.longitudes[i], chart.latitudes[j]) for j, i in route]
+                    route = [route[0], *route[1:-2:interval], route[-1]]
+                    route.reverse()
 
-            # Chart the route
-            try:
-                route = astar.reconstruct_path(came_from, start=(j, i), goal=(j_goal, i_goal))
-                route = [(chart.longitudes[i], chart.latitudes[j]) for j, i in route]
-                route = [route[0], *route[1:-2:interval], route[-1]]
-                route.reverse()
-
-            except Exception as e:
-                raise RuntimeError("No possible route") from e
-
+                except Exception as e:
+                    raise RuntimeError("No possible route") from e
 
             # Create a vessel
             vessel = cls(x, y, 
@@ -189,6 +190,7 @@ class Vessel:
     def from_positions(cls, points: List[Tuple[float, float]], 
                             chart: chart.Chart = None, 
                             destination: Tuple[float, float] = None, 
+                            route: List[Tuple[float, float]] = None,
                             interval: int = 5, 
                             **kwargs) -> List:
         """Generates a list of vessels from multiple positions.
@@ -210,6 +212,7 @@ class Vessel:
             vessel = cls.from_position(point, 
                                        chart, 
                                        destination, 
+                                       route,
                                        interval, 
                                        **kwargs)
 

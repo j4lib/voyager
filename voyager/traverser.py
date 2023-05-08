@@ -99,12 +99,13 @@ class Traverser:
             duration = 60,
             timestep = 1, 
             destination = [], 
+            route = None,
+            start_date = '',
             speed = 2, 
             paddlers = 0,
             weight = 0,
             cadence = 0,
             oar_depth = 0,     
-            date = '', 
             bbox = [], 
             departure_point = [], 
             data_directory = '', 
@@ -122,8 +123,9 @@ class Traverser:
             duration (int, optional): The maximal duration in days of the trajectories. Defaults to 60.
             timestep (int, optional): Timestep for updating the speed and position of the vessels. Defaults to 1.
             destination (list, optional): Destination coordinates in WGS84. Defaults to [].
-            speed (int, optional): Paddling speed in m/s. Defaults to 2.
+            route (list, optional): Fixed pre-created route. Defaults to None.
             date (pd.Timestamp, optional): Date as a YYYY-MM-DD string. Defaults to ''.
+            speed (int, optional): Paddling speed in m/s. Defaults to 2.
             bbox (list, optional): Bounding box of the map. Defaults to [].
             departure_point (list, optional): Departure point in WGS84. Defaults to [].
             data_directory (str, optional): The root directory of the velocity data. Defaults to ''.
@@ -142,7 +144,7 @@ class Traverser:
         # and the wind/current data for that region
         # It is shared by all vessels
         if not chart:
-            start_date = pd.to_datetime(date, infer_datetime_format=True)
+            start_date = pd.to_datetime(start_date, infer_datetime_format=True)
             end_date   = start_date + pd.Timedelta(duration, unit='days')
             chart = Chart(bbox, start_date, end_date).load(data_directory, **chart_kwargs)
         
@@ -156,7 +158,8 @@ class Traverser:
                                       craft = craft,
                                       chart = chart,
                                       destination = destination,
-                                      launch_date = date,
+                                      route = route,
+                                      launch_date = start_date,
                                       speed = speed,
                                       paddlers = paddlers,
                                       weight = weight,
@@ -189,6 +192,7 @@ class Traverser:
             duration = 60,
             timestep = 1, 
             destination = [], 
+            route = None,
             speed = 2, 
             paddlers = 0,
             weight = 0,
@@ -217,6 +221,7 @@ class Traverser:
             start_date (pd.Timedelta, optional): Date as a YYYY-MM-DD string. Defaults to ''.
             bbox (list, optional): Bounding box of the map. Defaults to [].
             departure_point (list, optional): Departure point in WGS84. Defaults to [].
+            route (list, optional): Fixed pre-created route. Defaults to None.
             data_directory (str, optional): The root directory of the velocity data. Defaults to ''.
             vessel_params (dict, optional): Parameters for the vessel configuration. Defaults to {}.
             chart_kwargs (dict, optional): Parameters for the chart configuration. Defaults to {}.
@@ -246,6 +251,7 @@ class Traverser:
                                       craft = craft,
                                       chart = chart,
                                       destination = destination,
+                                      route = route,
                                       launch_date = start_date,
                                       speed = speed,
                                       paddlers = paddlers,
@@ -280,6 +286,7 @@ class Traverser:
             duration = 60,
             timestep = 1, 
             destination = [], 
+            route = None,
             speed = 2, 
             paddlers = 0,
             weight = 0,
@@ -303,6 +310,7 @@ class Traverser:
             mode (str, optional): The mode of propulsion, either 'sailing', 'paddling' or 'drift'. Defaults to 'drift'.
             craft (int, optional): The craft type. Defaults to 1.
             duration (int, optional): The maximal duration in days of the trajectories. Defaults to 60.
+            route (list, optional): Fixed pre-created route. Defaults to None.
             timestep (int, optional): Timestep for updating the speed and position of the vessels. Defaults to 1.
             destination (list, optional): Destination coordinates in WGS84. Defaults to [].
             speed (int, optional): Paddling speed in m/s. Defaults to 2.
@@ -408,6 +416,7 @@ class Traverser:
                                             craft = self.craft,
                                             chart = chart, 
                                             destination = self.destination, 
+                                            route = self.route,
                                             speed = self.speed, 
                                             mode = self.mode,
                                             with_route = self.follows_route,
