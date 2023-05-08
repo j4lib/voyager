@@ -153,7 +153,6 @@ class Traverser:
         if not model:
             model = Model(duration, timestep, **model_kwargs)
 
-        
         vessel = Vessel.from_position(departure_point, 
                                       craft = craft,
                                       chart = chart,
