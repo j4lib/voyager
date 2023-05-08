@@ -25,6 +25,9 @@ import pandas as pd
 from typing import *
 import ephem
 
+global twilight_type 
+twilight_type = "civil"
+
 def lonlat_from_displacement(dx: float, dy: float, origin: Tuple[float, float]) -> Tuple[float, float]:
     """Calculate a new longitude and latitude from a displacement from an origin, using the Great Circle Approximation.
 
@@ -250,13 +253,13 @@ def calculate_twilights(date: pd.Timestamp, position: Tuple[float, float], type_
     return pd.Timestamp(morning_twilight), pd.Timestamp(evening_twilight)
 
 
-
-def is_it_night(date_and_time: pd.Timestamp, position: Tuple[float, float], type_of_twilight="sunrise") -> bool:
-    """Calculates whether a set of coordinates refer to a moment in the day or in the night. 
+def is_it_night(date_and_time: pd.Timestamp, position: Tuple[float, float], type_of_twilight="civil") -> bool:
+    """Calculates whether a set of coordinates refer to a moment in the day or in the night. We consider sunrise time as day, and sunset time as night.
 
     Args:
         date_and_time (pd.Timestamp): day of the year
         position (Tuple[float, float]): place in format [longitude, latitude]
+        type_of_twilight (str): type of twilight, "civil", "nautical" or "astronomical". Defaults to "civil".
 
     Returns:
         bool: returns whether the point is during the night or not
@@ -264,5 +267,5 @@ def is_it_night(date_and_time: pd.Timestamp, position: Tuple[float, float], type
     what_day = date_and_time.date()
     sunrise, sunset = calculate_twilights(what_day, position, type_of_twilight)
     
-    is_night = (date_and_time <= sunrise) or (sunset <= date_and_time)
+    is_night = (date_and_time < sunrise) or (sunset <= date_and_time)
     return is_night

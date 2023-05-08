@@ -7,7 +7,7 @@ import xarray as xr
 from .vessel import Vessel
 from .chart import Chart
 from .move import Displacement
-from .utils import calculate_sunrise, is_it_night, calculate_twilights
+from .utils import twilight_type, calculate_sunrise, is_it_night, calculate_twilights
 
 class Model:
     """A class to represent the model being simulated. A "model" in this context represents the set of modelling choices.
@@ -259,7 +259,7 @@ class Model:
         # Initialization
         dx = 0
         dy = 0
-        initial_day_time, final_day_time = calculate_twilights(vessel.launch_date.date(), [longitude, latitude], "civil")
+        initial_day_time, final_day_time = calculate_twilights(vessel.launch_date.date(), [longitude, latitude], twilight_type)
         is_night = False
 
         target_tol = (self.dt) * self.tolerance # 1/1000 is a good value
@@ -269,12 +269,26 @@ class Model:
         
         for t in np.arange(start=0, stop=self.duration, step=self.dt/N_SECONDS_IN_DAY):
             current_day_time = initial_day_time + pd.Timedelta(t, unit="days")
+            
+            # record whether last night was night (used as check)
+            last_night = is_night
+            # measure whether now is night
+            is_night = is_it_night(current_day_time, [longitude, latitude], twilight_type)
 
             if is_night:
-                # if here it's night from last step, re-calculate for next loop, then skip Displacement update.
-                is_night = is_it_night(current_day_time, [longitude, latitude], "civil")
+                # if it's night, check whether last night was also night. If not, update stops. If it was, just continue.
+                if not last_night:
+                    vessel.update_stops(current_day_time, [longitude, latitude])
+                
+                vessel.update_distance(0.0, 0.0)\
+                  .update_position(longitude, latitude)\
+                  .update_mean_speed(self.dt)\
+                  .update_encountered_environment(c, w, waves)
+
                 continue
             
+            # if not is_night, then it will calculate new positions
+
             # Calculate interpolated velocity at current coordinates
             c, w = self.velocity(t, longitude, latitude)
             waves = self.wave_height(t, longitude, latitude)
@@ -308,14 +322,5 @@ class Model:
 
             if is_arrived:
                 break
-
-            current_day_time = initial_day_time + pd.Timedelta(t, unit="days")
-            is_night = is_it_night(current_day_time, [longitude, latitude], "civil")
-
-            if is_night:
-                # if the code arrived here, it means that at the last iteration it was day.
-                # So it just became night, and it's time to update the stops.
-                vessel.update_stops(current_day_time, [longitude, latitude])
-                # when night is reached, the vessel stops and it sleeps (see if-clause at the beginning of the loop.)
 
         return vessel

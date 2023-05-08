@@ -242,6 +242,12 @@ class Vessel:
             dy (float): latitudinal displacement (km)
         """
 
+        if dx == 0.0 and dy == 0.0:
+            self.distance += 0.0
+            self.duration += 1
+            
+            return self
+
         self.distance += np.linalg.norm(np.vstack((dx.squeeze(), dy.squeeze()))).squeeze().item()
         self.duration += 1
 

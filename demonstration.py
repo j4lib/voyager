@@ -65,7 +65,7 @@ def plot(geojson: Dict, bbox: List, show_route: bool = False, **kwargs):
     stop_coordinates = pd.DataFrame(geojson['features'][0]['properties']['stop_coords'], columns=['x', 'y'])
     ax.scatter(x=stop_coordinates['x'], y=stop_coordinates['y'], color="gold",s = 100)
 
-    ax.set_title(f'Trip duration: {df.duration.values[0]} hours.')
+    ax.set_title(f'Effective duration: {df.duration.values[0]}h')
 
     if show_route == True:
         for i in range(len(df.route[0])):
@@ -141,12 +141,12 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1993-07-15'
+start_date = '1993-07-10'
 end_date = '1993-07-20'
 follows_route = True
+
 # weights indicate the actual weight of each weight layer (from out to sea to coast)
 # iterations indicate how large the layers are
-
 weights = [1, 10, 1, 100] # [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Neutral: [1,1,1,1]
 iterations = [10, 8, 3, 1] # alternative [10, 8, 4, 2]
 
@@ -245,3 +245,5 @@ plt.show()
 #%%
 # f, ax = plot_multiple(results, bbox, show_route=follows_route)
 # plt.show()
+
+# %%

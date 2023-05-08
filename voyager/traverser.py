@@ -167,7 +167,7 @@ class Traverser:
                                       params = vessel_params[mode][craft])
 
         # Interpolate the data for only the duration specified
-        start_date, sunset = utils.calculate_twilights(chart.start_date, departure_point, "civil")
+        start_date, sunset = utils.calculate_twilights(chart.start_date, departure_point, utils.twilight_type)
         chart.interpolate(start_date, duration)
 
         # Use the interpolated values in the model
@@ -257,7 +257,7 @@ class Traverser:
                                       params = vessel_params[mode][craft])
 
         # Interpolate the data for only the duration specified
-        start_date, sunset = utils.calculate_twilights(chart.start_date, departure_point, "civil")
+        start_date, sunset = utils.calculate_twilights(chart.start_date, departure_point, utils.twilight_type)
         chart.interpolate(start_date, duration)
 
         # Use the interpolated values in the model
@@ -341,7 +341,7 @@ class Traverser:
         results = []
         for date in dates[::launch_day_frequency]:
             # Calculate sunrise
-            date, sunset = utils.calculate_twilights(date, departure_point, "civil")
+            date, sunset = utils.calculate_twilights(date, departure_point, utils.twilight_type)
 
             vessel = Vessel.from_position(departure_point, 
                                           craft = craft,
@@ -414,7 +414,7 @@ class Traverser:
                                             vessel_config=self.vessel_config)
             
             # Calculate sunrise
-            date, sunset = utils.calculate_twilights(date, self.departure_points[0], "civil")
+            date, sunset = utils.calculate_twilights(date, self.departure_points[0], utils.twilight_type)
 
             # Interpolate the data for only the duration specified
             chart.interpolate(date, self.duration)
