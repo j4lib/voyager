@@ -14,6 +14,7 @@ This file can be imported as module and contains the following functions:
     * calculate_sunset(date, position): Calculates the time of sunset based on date, longitude and latitude, using the ephem package
     * is_it_night(date_and_time, position, type_of_twilight): Calculates whether a certain hour during a certain date at a certain position is nighttime.
     * calculate_twilights(date, position, type_of_twilight): Calculates the time of twilights based on date, longitude and latitude, using the ephem package.
+    * angle_uncertainty(sigma): Calculates angle of error in heading towards target.
 """
 
 import numpy as np
@@ -269,3 +270,11 @@ def is_it_night(date_and_time: pd.Timestamp, position: Tuple[float, float], type
     
     is_night = (date_and_time < sunrise) or (sunset <= date_and_time)
     return is_night
+
+
+def angle_uncertainty(sigma=1) -> float:
+    """Returns an angle error in radiants. 
+    """
+    angle_error = np.random.normal(0, sigma)
+    
+    return angle_error

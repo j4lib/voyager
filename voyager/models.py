@@ -17,6 +17,7 @@ class Model:
         dt (float): time step of the simulation in seconds
         chart (Chart): Chart over which the simulation takes place.
         sigma (float): incertitude of displacement (as sqrt of variance)
+        angle_sigma (float): incertitude of direction towards target (as sqrt of variance)
         tolerance (float): how close to a target is considered enough to end the simulation
     Methods:
         use(chart): use a supplied chart object of winds and currents
@@ -24,18 +25,20 @@ class Model:
         run(vessel): Calculates the trajectory of a vessel object in space over time
     """
 
-    def __init__(self, duration: int, dt: float, sigma = 2000.0, tolerance = 0.5e-3) -> None:
+    def __init__(self, duration: int, dt: float, sigma = 2000.0, angle_sigma = 10.0, tolerance = 0.5e-3) -> None:
         """
         Args:
             duration (int): maximal duration of each travel in days
             dt (float): time step of the simulation in seconds
             sigma (float): incertitude of displacement (as sqrt of variance). Defaults to 2000.0.
+            angle_sigma (float): incertitude of direction towards target (as sqrt of variance). Defaults to 10 (degrees).
             tolerance (float): how close to a target is considered enough to end the simulation. Defaults to 0.5e-3.
         """
         self.duration = duration
         self.dt       = dt
         self.chart = None
         self.sigma = sigma
+        self.angle_sigma = angle_sigma
         self.tolerance = tolerance
 
     def use(self, chart: Chart):
@@ -206,7 +209,7 @@ class Model:
                 break
 
             # Calculate displacement
-            dx, dy = displacement.move(c, w)\
+            dx, dy = displacement.move(c, w, self.angle_sigma)\
                                  .with_uncertainty(sigma=self.sigma)\
                                  .km()
                
@@ -303,7 +306,7 @@ class Model:
                 break
 
             # Calculate displacement
-            dx, dy = displacement.move(c, w)\
+            dx, dy = displacement.move(c, w, self.angle_sigma)\
                                  .with_uncertainty(sigma=self.sigma)\
                                  .km()
                

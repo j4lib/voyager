@@ -1,4 +1,5 @@
 from . import geo
+from .utils import angle_uncertainty
 import numpy as np
 import pandas as pd
 import math
@@ -12,14 +13,14 @@ class Displacement:
         dt (float): the time step between displacements
         dxy Tuple[float, float]: displacement in km on the x and y axis
     Methods:
-        move(c, w): Creates the displacement due to current and wind velocity
+        move(c, w, angle_sigma): Creates the displacement due to current and wind velocity
         leeway_displacement(w, Sl, Yt, dt): calculates the leeway displacement from vessel parameters and wind speed
         leeway_velocity(w, Sl, Yt): calculates the leeway wind velocity from vessel parameters and wind speed
         levison_leeway_displacement(w, dt): calculates the displacement due to leeway forces, using the Levison method.
         rotate(x, angle): rotates an array x by a certain angle
         from_drift(self, c: np.ndarray, w: np.ndarray): Generate displacement due to only drifting with the winds and currents.
-        from_paddling(c, w, position, target, speed): Generate displacement due to paddling with a certain paddling speed, as well as environmental factors from currents and winds.
-        from_sailing(c, w, position, target): Generate displacement due to sailing, reinforcing the wind speed contribution over the currents.
+        from_paddling(c, w, angle_sigma, position, target, speed): Generate displacement due to paddling with a certain paddling speed, as well as environmental factors from currents and winds.
+        from_sailing(c, w, angle_sigma, position, target): Generate displacement due to sailing, reinforcing the wind speed contribution over the currents.
         knots_to_si(knots): Converts knots to SI units (m/s)
         si_to_knots(si): Converts SI units (m/s) to knots
         paddling_speed(w, bearing): Calculates the paddling speed according to Wolfson Unit diagrams (in m/s)
@@ -41,7 +42,7 @@ class Displacement:
         self.dt     = dt
         self.dxy = None
 
-    def move(self, c: np.ndarray, w: np.ndarray):
+    def move(self, c: np.ndarray, w: np.ndarray, angle_sigma: float):
         """Creates the displacement due to a current and wind velocity.
 
         Args:
@@ -59,10 +60,10 @@ class Displacement:
             return self.from_drift(c, w)
 
         elif self.vessel.mode == 'paddling':
-            return self.from_paddling(c, w, (self.vessel.x, self.vessel.y), self.vessel.target, self.vessel.speed)
+            return self.from_paddling(c, w, angle_sigma, (self.vessel.x, self.vessel.y), self.vessel.target, self.vessel.speed)
 
         elif self.vessel.mode == 'sailing':
-            return self.from_sailing(c, w, (self.vessel.x, self.vessel.y), self.vessel.target)
+            return self.from_sailing(c, w, angle_sigma, (self.vessel.x, self.vessel.y), self.vessel.target)
 
         else:
             raise ValueError("Mode of displacement should be drifting, paddling or sailing")
@@ -252,13 +253,14 @@ class Displacement:
 
         return self
 
-    def from_paddling(self, c: np.ndarray, w: np.ndarray, position: np.ndarray, target: np.ndarray, speed: float):
+    def from_paddling(self, c: np.ndarray, w: np.ndarray, angle_sigma: float, position: np.ndarray, target: np.ndarray, speed: float):
         """Generate displacement due to paddling with a certain paddling speed, as well as environmental factors from
         currents and winds.
 
         Args:
             c (np.ndarray): Current velocity
             w (np.ndarray): Wind velocity
+            angle_sigma (float): sigma of normally distributed angle error
             position (np.ndarray): Current position coordinates
             target (np.ndarray): Destination position coordinates
             speed (float): Paddling speed
@@ -268,7 +270,7 @@ class Displacement:
         """
         # Calculate the bearing from the current position to the target
         a = geo.bearing_from_lonlat(position, target)
-        a = np.deg2rad(a)
+        a = np.deg2rad(a + angle_uncertainty(angle_sigma))
 
         # Get the displacement due to paddling towards the target
         if self.vessel.craft == 'hjortspring':
@@ -286,7 +288,7 @@ class Displacement:
 
         return self
 
-    def from_sailing(self, c: np.ndarray, w: np.ndarray, position: np.ndarray, target: np.ndarray):
+    def from_sailing(self, c: np.ndarray, w: np.ndarray, angle_sigma: float, position: np.ndarray, target: np.ndarray):
         """Generate displacement due to sailing, reinforcing the wind speed contribution over the currents.
 
         Args:
@@ -311,7 +313,7 @@ class Displacement:
         # Calculate the bearing
         bearing = target - position
         a = geo.bearing_from_lonlat(position, target)
-        a = np.deg2rad(a)
+        a = np.deg2rad(a + angle_uncertainty(angle_sigma))
         bearing = np.array([np.cos(a), np.sin(a)]).squeeze()
 
         bearing = bearing.squeeze()
@@ -498,6 +500,7 @@ class Displacement:
         self.dxy += np.random.normal(0, sigma, size=self.dxy.shape)
         
         return self
+
 
     def km(self):
         """Returns the displacement in kilometres, from metres.

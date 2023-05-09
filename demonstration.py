@@ -152,7 +152,8 @@ iterations = [10, 8, 3, 1] # alternative [10, 8, 4, 2]
 
 # Model options
 tolerance = 0.001
-sigma = 0 # 100
+location_sigma = 0 # 100
+angle_sigma = 0
 
 # Trajectory options
 launch_freq = 3 # days
@@ -201,7 +202,7 @@ chart = voyager.Chart(bbox, start_date, end_date + pd.Timedelta(duration, unit="
 
 #%%  
 # Create the model that steps throught time
-model = voyager.Model(duration, timestep, sigma=sigma, tolerance=tolerance)
+model = voyager.Model(duration, timestep, sigma=location_sigma, angle_sigma=angle_sigma, tolerance=tolerance)
 
 #%%
 # Calculate the trajectories
