@@ -153,7 +153,7 @@ iterations = [10, 8, 3, 1] # alternative [10, 8, 4, 2]
 # Model options
 tolerance = 0.001
 location_sigma = 0 # 100
-angle_sigma = 0
+angle_sigma = 10
 
 # Trajectory options
 launch_freq = 3 # days
