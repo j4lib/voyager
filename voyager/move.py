@@ -35,6 +35,7 @@ class Displacement:
         Args:
             vessel (Vessel): the Vessel object that is displaced
             dt (float): the time step between displacements
+            dxy (np.array): the displacement at current timestep, with two elements x and y
         """
         super().__init__()
 
