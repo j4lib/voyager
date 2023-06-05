@@ -19,7 +19,6 @@ class Chart:
     The Chart object symbolizes the map, including wind and current data, as well as the grid used for path finding.
 
     A chart at any moment is a bounding box of the underlying available data at a specific date interval. 
-    TODO: add waves data to Chart (for tracking)
 
     Attributes:
         data_dir (str): the path to the data files

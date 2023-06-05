@@ -269,9 +269,16 @@ class Displacement:
         Returns:
             Displacement: The Displacement instance
         """
+
         # Calculate the bearing from the current position to the target
         a = geo.bearing_from_lonlat(position, target)
         a = np.deg2rad(a + angle_uncertainty(angle_sigma))
+
+        # TODO Add algorithm to find land and avoid it if necessary.
+        # 1) check ahead of bearing. Is land there?
+        #    >> what angle to check? 180 degrees around? (+ and -90) 
+        #    >> is current nan anywhere there?
+        # 2) if there is current nan, add 90 degrees to bearing
 
         # Get the displacement due to paddling towards the target
         if self.vessel.craft == 'hjortspring':
