@@ -13,6 +13,7 @@ import xoak
 
 from . import utils
 from . import search
+from . import geo
 
 class Chart:
     """
@@ -42,6 +43,7 @@ class Chart:
         load(data_dir, **kwargs): loads the Chart data for dynamical updating
         interpolate(date, duration): interpolates the loaded data for the selected period
         isLand(longitude, latitude): Determines whether a certain position is land or not.
+        find_closest_land(longitude, latitude, radar_radius): Calculates the distance and angle to the closest land within a certain lon/lat radius. 
     """
 
     def __init__(self, bbox, start_date, end_date) -> None:
@@ -160,6 +162,46 @@ class Chart:
             return True
         else:       
             return False
+        
+    def find_closest_land(self, longitude: float, latitude: float, radar_radius: float = 0.5):
+        """Calculates the distance and angle to the closest land within a certain lon/lat radius.
+
+        Args:
+            position (np.ndarray): current position (lon/lat)
+            radar_radius (float): radius around the position that is checked for land, in angles.
+        Returns:
+            distance_to_land, angle_to_land (Tuple[float, float]): distance (in km) and angle (in degrees from the North) to the closest land
+        """
+        r_earth = 6371 # km
+        position = np.array([longitude, latitude])
+
+        # select only u_current, since if u is None, then v is None too.
+        selected_radius = self.u_current_all.sel(time=self.start_date,
+                                                 longitude=slice(longitude - radar_radius, longitude + radar_radius),
+                                                 latitude=slice(latitude - radar_radius, latitude + radar_radius))
+        
+        # calculate whether there is land anywhere
+        nan_count = sum(sum(selected_radius.isnull().values))
+        isThereLand = False if nan_count == 0 else True
+
+        if isThereLand:
+            selected_radius = selected_radius.to_dataset()
+            # calculate matrix of distances
+            distances = selected_radius.assign(distance = lambda x: (r_earth*np.pi/180)*np.sqrt((x.u.latitude - latitude)**2 
+                                                                                                + (x.u.longitude - longitude)**2)*np.cos(latitude*np.pi/180))
+            idx_lat_closest = distances.where(distances.u.isnull()).distance.argmin(dim=['latitude', 'longitude'])['latitude'].values
+            idx_lon_closest = distances.where(distances.u.isnull()).distance.argmin(dim=['latitude', 'longitude'])['longitude'].values
+            lat_closest = distances.latitude[idx_lat_closest].values
+            lon_closest = distances.longitude[idx_lon_closest].values
+
+            distance_to_land = distances.distance[idx_lat_closest][idx_lon_closest].values
+            angle_to_land = geo.bearing_from_lonlat(position, np.array([lon_closest, lat_closest]))
+
+            return [distance_to_land, angle_to_land]
+        
+        else:
+            return [None, None]
+
         
 
 def _interpolate(x, start_date: pd.Timestamp, end_date: pd.Timestamp) -> RegularGridInterpolator:

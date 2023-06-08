@@ -160,8 +160,8 @@ def bearing_from_lonlat(position: np.ndarray, target: np.ndarray) -> float:
     """Gives angle between a coordinate and a target (in degrees with respect to North) 
 
     Args:
-        dx (float): displacement in km along the x axis
-        dy (float): displacement in km along the y axis
+        position (np.ndarray): current position (lon/lat)
+        target (np.ndarray): target position (lon/lat)
     Returns:
         float: bearing (angle) between a position and a target in degrees
     """

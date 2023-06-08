@@ -203,7 +203,6 @@ vessel_cfg = load_yaml(vessel_cfg_path)
 chart = voyager.Chart(bbox, start_date, end_date + pd.Timedelta(duration, unit="days"))\
                     .load(data_directory, weights=weights, iterations=iterations)
 
-
 #%%
 # f, ax = plot_contours(chart)
 # plt.show(block=False)
