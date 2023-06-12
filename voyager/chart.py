@@ -163,7 +163,7 @@ class Chart:
         else:       
             return False
         
-    def find_closest_land(self, longitude: float, latitude: float, radar_radius: float = 0.5):
+    def find_closest_land(self, longitude: float, latitude: float, radar_radius: float = 0.05):
         """Calculates the distance and angle to the closest land within a certain lon/lat radius.
 
         Args:

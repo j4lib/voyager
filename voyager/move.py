@@ -43,12 +43,14 @@ class Displacement:
         self.dt     = dt
         self.dxy = None
 
-    def move(self, c: np.ndarray, w: np.ndarray, angle_sigma: float):
+    def move(self, c: np.ndarray, w: np.ndarray, landmarks: Tuple[float, float], angle_sigma: float):
         """Creates the displacement due to a current and wind velocity.
 
         Args:
             c (np.ndarray): current velocity
             w (np.ndarray): wind velocity
+            landmarks (Tuple[float, float]): distance (in km) and angle (in degrees from the North) from the closest land
+            angle_sigma(float): angle variance (error) in choice of bearing
 
         Raises:
             ValueError: Raised if the model displacement is not drifting, paddling or sailing
@@ -61,7 +63,7 @@ class Displacement:
             return self.from_drift(c, w)
 
         elif self.vessel.mode == 'paddling':
-            return self.from_paddling(c, w, angle_sigma, (self.vessel.x, self.vessel.y), self.vessel.target, self.vessel.speed)
+            return self.from_paddling(c, w, angle_sigma, landmarks, (self.vessel.x, self.vessel.y), self.vessel.target, self.vessel.speed)
 
         elif self.vessel.mode == 'sailing':
             return self.from_sailing(c, w, angle_sigma, (self.vessel.x, self.vessel.y), self.vessel.target)
@@ -254,7 +256,7 @@ class Displacement:
 
         return self
 
-    def from_paddling(self, c: np.ndarray, w: np.ndarray, angle_sigma: float, position: np.ndarray, target: np.ndarray, speed: float):
+    def from_paddling(self, c: np.ndarray, w: np.ndarray, angle_sigma: float, landmarks: Tuple[float, float], position: np.ndarray, target: np.ndarray, speed: float):
         """Generate displacement due to paddling with a certain paddling speed, as well as environmental factors from
         currents and winds.
 
@@ -262,6 +264,7 @@ class Displacement:
             c (np.ndarray): Current velocity
             w (np.ndarray): Wind velocity
             angle_sigma (float): sigma of normally distributed angle error
+            landmarks (Tuple[float, float]): distance (in km) and angle (in degrees from the North) of the closest land
             position (np.ndarray): Current position coordinates
             target (np.ndarray): Destination position coordinates
             speed (float): Paddling speed
@@ -274,11 +277,35 @@ class Displacement:
         a = geo.bearing_from_lonlat(position, target)
         a = np.deg2rad(a + angle_uncertainty(angle_sigma))
 
-        # TODO Add algorithm to find land and avoid it if necessary.
-        # 1) check ahead of bearing. Is land there?
-        #    >> what angle to check? 180 degrees around? (+ and -90) 
-        #    >> is current nan anywhere there?
-        # 2) if there is current nan, add 90 degrees to bearing
+        # if landmarks are None, no land is found in an angle of 0.5 degrees around the coordinates. Bearing can be the same. 
+        # If there is land in this angle, we check for land within 5 km, then stir away if there is.
+        if landmarks[0] is None:
+            pass
+        else:
+            # calculate whether land is ahead. We define "ahead" as within an angle of 90 degrees around the bearing:
+            land_angle = np.deg2rad(landmarks[1])
+            left = (a - np.pi/4 + 2*np.pi) % (2*np.pi)
+            right = (a + np.pi/4 + 2*np.pi) % (2*np.pi)
+            
+            if np.pi/4 <= a <= 7/4*np.pi:
+                is_ahead = left <= land_angle <= right
+            else:
+                is_ahead = (0 <= land_angle <= right) or (left <= land_angle <= 2*np.pi)
+            # elif a > 7/4*np.pi:
+            #     is_ahead = (left <= land_angle <= 2*np.pi) or (0 <= land_angle <= right)
+
+            if is_ahead:
+                # in general, if (bearing - land_angle) > 0 , then land is on the left (steering to the right - positive - is necessary). And viceversa.
+                sign_of_steering = np.sign(a - land_angle)
+                if sign_of_steering != 0:
+                    a = a - sign_of_steering * 3*np.pi/2
+                else:
+                    # the case where (bearing - land_angle) = 0 represent land right ahead. In this (hopefully rare) case we just move in the 
+                    # opposite direction and try again...
+                    a = a + np.pi
+                
+            else:
+                pass
 
         # Get the displacement due to paddling towards the target
         if self.vessel.craft == 'hjortspring':

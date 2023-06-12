@@ -61,6 +61,7 @@ def plot(geojson: Dict, bbox: List, show_route: bool = False, **kwargs):
     # Add departure point and destination
     ax.scatter(x=departure_points[0][0], y=departure_points[0][1], color="red")
     ax.scatter(x=destination[0], y=destination[1], color="green")
+    ax.scatter(x=11.2, y=58.6, color="purple")
 
     stop_coordinates = pd.DataFrame(geojson['features'][0]['properties']['stop_coords'], columns=['x', 'y'])
     ax.scatter(x=stop_coordinates['x'], y=stop_coordinates['y'], color="gold",s = 100)
@@ -141,8 +142,8 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1993-07-10'
-end_date = '1993-07-20'
+start_date = '1993-03-03'
+end_date = '1993-03-15'
 follows_route = True
 
 # weights indicate the actual weight of each weight layer (from out to sea to coast)
@@ -220,7 +221,6 @@ single_result = voyager.Traverser.trajectory_by_day(mode = mode,
                                              duration = duration,
                                              timestep = timestep, 
                                              destination = destination,
-                                             route = route.copy(),
                                              start_date = start_date,
                                              paddlers = number_of_paddlers,
                                              weight = vessel_weight,

@@ -207,9 +207,11 @@ class Model:
             # If c, w still None, then land has been reached!
             if c is None or w is None:
                 break
+            
+            landmarks = self.chart.find_closest_land(longitude, latitude)
 
             # Calculate displacement
-            dx, dy = displacement.move(c, w, self.angle_sigma)\
+            dx, dy = displacement.move(c, w, landmarks, self.angle_sigma)\
                                  .with_uncertainty(sigma=self.sigma)\
                                  .km()
                
@@ -305,8 +307,10 @@ class Model:
             if c is None or w is None:
                 break
 
+            landmarks = self.chart.find_closest_land(longitude, latitude)
+
             # Calculate displacement
-            dx, dy = displacement.move(c, w, self.angle_sigma)\
+            dx, dy = displacement.move(c, w, landmarks, self.angle_sigma)\
                                  .with_uncertainty(sigma=self.sigma)\
                                  .km()
                
