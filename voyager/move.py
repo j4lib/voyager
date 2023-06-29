@@ -274,8 +274,8 @@ class Displacement:
         """
 
         # Calculate the bearing from the current position to the target
-        a = geo.bearing_from_lonlat(position, target)
-        a = np.deg2rad(a + angle_uncertainty(angle_sigma))
+        bearing = geo.bearing_from_lonlat(position, target)
+        bearing = np.deg2rad(bearing + angle_uncertainty(angle_sigma))
 
         # if landmarks are None, no land is found in an angle of 0.5 degrees around the coordinates. Bearing can be the same. 
         # If there is land in this angle, we check for land within 5 km, then stir away if there is.
@@ -284,37 +284,38 @@ class Displacement:
         else:
             # calculate whether land is ahead. We define "ahead" as within an angle of 90 degrees around the bearing:
             land_angle = np.deg2rad(landmarks[1])
-            left = (a - np.pi/4 + 2*np.pi) % (2*np.pi)
-            right = (a + np.pi/4 + 2*np.pi) % (2*np.pi)
+            left_limit = (bearing - np.pi/4 + 2*np.pi) % (2*np.pi)
+            right_limit = (bearing + np.pi/4 + 2*np.pi) % (2*np.pi)
             
-            if np.pi/4 <= a <= 7/4*np.pi:
-                is_ahead = left <= land_angle <= right
+            # the bearing is given as a number between 0 and 2pi, we need to split here. is_ahead is True if:
+            if np.pi/4 <= bearing <= 7/4*np.pi:
+                is_ahead = (left_limit <= land_angle <= right_limit)
             else:
-                is_ahead = (0 <= land_angle <= right) or (left <= land_angle <= 2*np.pi)
+                is_ahead = (0 <= land_angle <= right_limit) or (left_limit <= land_angle <= 2*np.pi)
             # elif a > 7/4*np.pi:
             #     is_ahead = (left <= land_angle <= 2*np.pi) or (0 <= land_angle <= right)
 
             if is_ahead:
                 # in general, if (bearing - land_angle) > 0 , then land is on the left (steering to the right - positive - is necessary). And viceversa.
-                sign_of_steering = np.sign(a - land_angle)
+                sign_of_steering = np.sign(bearing - land_angle)
                 if sign_of_steering != 0:
-                    a = a - sign_of_steering * 3*np.pi/2
+                    bearing = bearing - sign_of_steering * 3*np.pi/2
                 else:
                     # the case where (bearing - land_angle) = 0 represent land right ahead. In this (hopefully rare) case we just move in the 
                     # opposite direction and try again...
-                    a = a + np.pi
+                    bearing = bearing + np.pi
                 
             else:
                 pass
 
         # Get the displacement due to paddling towards the target
         if self.vessel.craft == 'hjortspring':
-            real_direction = self.paddling_leeway(w, a)
+            real_direction = self.paddling_leeway(w, bearing)
 
             # the calculation of the paddling speed is done with comparison to the bearing, but movement is in the real_direction
-            dxy_paddle = self.paddling_speed(w, a) * self.dt * np.array([-np.sin(real_direction), np.cos(real_direction)])
+            dxy_paddle = self.paddling_speed(w, bearing) * self.dt * np.array([-np.sin(real_direction), np.cos(real_direction)])
         else:
-            dxy_paddle = speed * self.dt * np.array([-np.sin(a), np.cos(a)])
+            dxy_paddle = speed * self.dt * np.array([-np.sin(bearing), np.cos(bearing)])
 
         # Calculate the displacement due to drift
         dxy_drift = self.from_drift(c, w).dxy
