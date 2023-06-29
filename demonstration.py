@@ -142,8 +142,8 @@ lon_min = 5.692326 #4
 lat_min = 53.671019 #52
 lon_max = 13.536054 #15
 lat_max = 59.388759 #60
-start_date = '1993-03-03'
-end_date = '1993-03-15'
+start_date = '1995-07-03'
+end_date = '1995-07-15'
 follows_route = True
 
 # weights indicate the actual weight of each weight layer (from out to sea to coast)
@@ -158,7 +158,7 @@ angle_sigma = 10
 
 # Trajectory options
 launch_freq = 3 # days
-duration = 15 # max duration in days
+duration = 30 # max duration in days
 timestep = 900 # 900 s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config

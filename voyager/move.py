@@ -299,7 +299,7 @@ class Displacement:
                 # in general, if (bearing - land_angle) > 0 , then land is on the left (steering to the right - positive - is necessary). And viceversa.
                 sign_of_steering = np.sign(bearing - land_angle)
                 if sign_of_steering != 0:
-                    bearing = bearing - sign_of_steering * 3*np.pi/2
+                    bearing = bearing + sign_of_steering * np.pi/2
                 else:
                     # the case where (bearing - land_angle) = 0 represent land right ahead. In this (hopefully rare) case we just move in the 
                     # opposite direction and try again...
