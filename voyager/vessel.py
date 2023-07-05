@@ -101,11 +101,13 @@ class Vessel:
         self.coord_stops = []
 
         self.route  = route
-        self.route_taken = [[float(x),float(y)] for x,y in self.route]
+
         try:
             if with_route == True:
+                self.route_taken = [[float(x),float(y)] for x,y in self.route]
                 self.target = self.route.pop()
             elif with_route == False:
+                self.route_taken = []
                 self.target = self.destination
         except:
             print("You need to specify whether a route is taken!")

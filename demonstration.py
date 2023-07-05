@@ -144,7 +144,7 @@ lon_max = 13.536054 #15
 lat_max = 59.388759 #60
 start_date = '1995-07-03'
 end_date = '1995-07-15'
-follows_route = True
+follows_route = False
 
 # weights indicate the actual weight of each weight layer (from out to sea to coast)
 # iterations indicate how large the layers are
@@ -154,7 +154,7 @@ iterations = [10, 8, 3, 1] # alternative [10, 8, 4, 2]
 # Model options
 tolerance = 0.001
 location_sigma = 0 # 100
-angle_sigma = 10
+angle_sigma = 0
 
 # Trajectory options
 launch_freq = 3 # days
@@ -167,7 +167,7 @@ number_of_paddlers = 16
 rowing_cadence = 50
 oar_depth = 75 # in cm. If 0, there is no oar
 
-destination = [11.6486, 57.6065] # lon lat format
+destination = [8.0888, 56.7981] # lon lat format
 departure_points = [[7.3663, 57.9517]] #[10.7875, 57.2335]
 route = [destination,
          [11.3489, 57.8185],
@@ -216,7 +216,7 @@ model = voyager.Model(duration, timestep, sigma=location_sigma, angle_sigma=angl
 # Calculate the trajectories
 
 # IMPORTANT! use route.copy() to avoid route getting cancelled by an internal pop() method.
-single_result = voyager.Traverser.trajectory_by_day(mode = mode,
+single_result = voyager.Traverser.trajectory(mode = mode,
                                              craft = craft, 
                                              duration = duration,
                                              timestep = timestep, 
@@ -226,7 +226,7 @@ single_result = voyager.Traverser.trajectory_by_day(mode = mode,
                                              weight = vessel_weight,
                                              cadence = rowing_cadence,
                                              oar_depth = oar_depth,
-                                             bbox = bbox, 
+                                             bbox = bbox,
                                              departure_point = departure_points[0], 
                                              vessel_params=vessel_cfg,
                                              chart = chart, 
