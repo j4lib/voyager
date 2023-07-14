@@ -370,7 +370,7 @@ class Vessel:
                     "trip_currents": self.encountered_current,
                     "trip_winds": self.encountered_winds,
                     "trip_waves": self.encountered_waves,
-                    "stop_times": self.stops,
+                    "stop_times": [(lambda x: x.strftime('%Y-%m-%dT%H:%M:%S'))(x) for x in self.stops],
                     "stop_coords": self.coord_stops,
                 }          
             }
