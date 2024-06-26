@@ -55,7 +55,7 @@ def plot(geojson: Dict, bbox: List, show_route: bool = False, **kwargs):
                   linewidth=2, color='gray', alpha=0.2, linestyle='--')
 
     # Use geopandas built-in GeoJSON processing and visualization
-    df = geopandas.GeoDataFrame.from_features(geojson)
+    df = geopandas.GeoDataFrame.from_features(geojson["features"])
     df.plot(ax=ax, zorder=10, **kwargs)
 
     # Add departure point and destination
@@ -138,18 +138,18 @@ data_directory = "/media/mtomasini/LaCie/LIR/"
 vessel_cfg_path =  './voyager/configs/vessels.yml'
 
 # Chart options
-lon_min = 5.692326 #4
-lat_min = 53.671019 #52
-lon_max = 13.536054 #15
-lat_max = 59.388759 #60
-start_date = '1995-07-03'
-end_date = '1995-07-15'
+lon_min = -7.343910
+lat_min = 49.585907
+lon_max = 9.356939
+lat_max = 57.402805
+start_date = '1993-03-23'
+end_date = '1993-03-25'
 follows_route = True
 
 # weights indicate the actual weight of each weight layer (from out to sea to coast)
 # iterations indicate how large the layers are
 weights = [1, 10, 1, 100] # [5, 5, 1, 100] # Interesting: [5, 5, 1, 100] # Neutral: [1,1,1,1]
-iterations = [10, 8, 3, 1] # alternative [10, 8, 4, 2]
+iterations = [10, 5, 3, 1] # alternative [10, 8, 4, 2]
 
 # Model options
 tolerance = 0.001
@@ -159,33 +159,35 @@ angle_sigma = 0
 # Trajectory options
 launch_freq = 10 # days
 duration = 30 # max duration in days
-timestep = 900 # 900 s
+timestep = 3600 # 900 s
 mode = 'paddling' # or 'drift', 'paddling', 'sailing'
 craft = 'hjortspring' # the ones in the config
 vessel_weight = 3000 # in kg
 number_of_paddlers = 16
-rowing_cadence = 50
+rowing_cadence = 44
 oar_depth = 75 # in cm. If 0, there is no oar
 
-destination = [7.3663, 57.9517] # lon lat format
-departure_points = [[12.0767, 57.0857]] #[10.7875, 57.2335]
-route = [destination,
-         [11.3489, 57.8185],
-         [11.200, 57.9661],
-         [10.9863, 58.4506],
-         [10.8875, 58.7518], 
-         [10.573, 58.9017],
-         [10.3271, 58.8336], #
-         [10.3049, 58.8149],
-         [9.9106, 58.6795],
-         [9.5103, 58.5235],
-         [9.2545, 58.3084],
-         [8.9420, 58.0970],
-         [8.5955, 58.0201],
-         [8.4098, 57.8600],
-         [8.1128, 57.7719],
-         [7.7199, 57.7694],
-         departure_points[0]]
+
+destination = [-3.82, 53.32] # [7.3663, 57.9517] # lon lat format
+departure_points = [[1.36, 51.32]] # 
+
+# route = [destination,
+#          [11.3489, 57.8185],
+#          [11.200, 57.9661],
+#          [10.9863, 58.4506],
+#          [10.8875, 58.7518], 
+#          [10.573, 58.9017],
+#          [10.3271, 58.8336], #
+#          [10.3049, 58.8149],
+#          [9.9106, 58.6795],
+#          [9.5103, 58.5235],
+#          [9.2545, 58.3084],
+#          [8.9420, 58.0970],
+#          [8.5955, 58.0201],
+#          [8.4098, 57.8600],
+#          [8.1128, 57.7719],
+#          [7.7199, 57.7694],
+#          departure_points[0]]
 
 # Create the bounding box, observe the order (lonlat)
 bbox = [lon_min, lat_min, lon_max, lat_max]
@@ -203,6 +205,39 @@ vessel_cfg = load_yaml(vessel_cfg_path)
 # Should possibly be pre-computed if computation is too slow
 chart = voyager.Chart(bbox, start_date, end_date + pd.Timedelta(duration, unit="days"))\
                     .load(data_directory, weights=weights, iterations=iterations)
+
+departure_points = [chart.find_closest_water(departure_points[0][0], departure_points[0][1], radar_radius=1)]
+destination = chart.find_closest_water(destination[0], destination[1], radar_radius=1)
+route = [[-3.777940034866333, 53.33399963378906], 
+         [-4.111269950866699, 53.46733856201172], 
+         [-4.338838, 53.515715], 
+         [-4.766820049285889, 53.46733856201172],
+         [-4.666820049285889, 53.13399124145508], 
+         [-4.889039993286133, 52.80064010620117],
+         [-4.333489894866943, 52.533958435058594],
+         [-4.889039993286133, 52.26728057861328],
+         [-5.333479881286621, 51.933929443359375], 
+         [-5.222370147705078, 51.60057830810547], 
+         [-4.666820049285889, 51.46723937988281], 
+         [-4.5557098388671875, 51.133888244628906], 
+         [-4.889039993286133, 50.800540924072266], 
+         [-5.444590091705322, 50.46718978881836], 
+         [-6.013905, 50.13383865356445],
+         [-5.555699825286865, 49.93383026123047], 
+         [-5.000150203704834, 49.93383026123047], 
+         [-4.4446001052856445, 50.20050811767578],
+         [-3.889050006866455, 50.13383865356445], 
+         [-3.3334999084472656, 50.267181396484375], 
+         [-2.7779500484466553, 50.600528717041016], 
+         [-2.222399950027466, 50.46718978881836], 
+         [-1.666849970817566, 50.50718978881836],
+         [-1.111299991607666, 50.46718978881836], 
+         [-0.5557500123977661, 50.667198181152344],
+         [-0.00019999999494757503, 50.667198181152344],
+         [0.5553500056266785, 50.73387145996094],
+         [1.36, 50.9],
+         [1.9, 51.3]]
+# route = list(reversed(route))
 
 #%%
 # f, ax = plot_contours(chart)
@@ -227,6 +262,7 @@ single_result = voyager.Traverser.trajectory_by_day(mode = mode,
                                              cadence = rowing_cadence,
                                              oar_depth = oar_depth,
                                              bbox = bbox,
+                                             route = route.copy(),
                                              departure_point = departure_points[0], 
                                              vessel_params=vessel_cfg,
                                              chart = chart, 
@@ -235,7 +271,7 @@ single_result = voyager.Traverser.trajectory_by_day(mode = mode,
 
 #%%
 # import json 
-# with open('./test_json', 'w') as file:
+# with open('./test.json', 'w') as file:
 #     json.dump(single_result, file, indent=4)
 
 #%%

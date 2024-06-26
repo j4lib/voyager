@@ -82,6 +82,9 @@ class Model:
         # Calculate wind speeds
         v_x_wind = self.chart.u_wind((t, longitude, latitude))
         v_y_wind = self.chart.v_wind((t, longitude, latitude))
+        
+        if np.isnan(v_x_current) or np.isnan(v_y_wind):
+            return None, None
 
         return (np.array([v_x_current, v_y_current]), np.array([v_x_wind, v_y_wind]))
     

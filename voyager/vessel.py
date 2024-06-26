@@ -278,10 +278,9 @@ class Vessel:
             current (List[float, float]): horizontal and vertical current at each update
             wind (List[float, float]): horizontal and vertical wind at each update
         """
-        self.encountered_current.append([current[0], current[1]])
+        self.encountered_current.append([current[0].astype(np.float64), current[1].astype(np.float64)])
         self.encountered_winds.append([wind[0], wind[1]])
         self.encountered_waves.append(waves)
-
 
         return self
     

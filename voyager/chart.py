@@ -44,6 +44,7 @@ class Chart:
         interpolate(date, duration): interpolates the loaded data for the selected period
         isLand(longitude, latitude): Determines whether a certain position is land or not.
         find_closest_land(longitude, latitude, radar_radius): Calculates the distance and angle to the closest land within a certain lon/lat radius. 
+        find_closest_water(longitude, latitude, radar_radius): Calculates the lon/lat of the closest piece of body to a land site, within a certain lon/lat radius. 
     """
 
     def __init__(self, bbox, start_date, end_date) -> None:
@@ -168,7 +169,7 @@ class Chart:
 
         Args:
             position (np.ndarray): current position (lon/lat)
-            radar_radius (float): radius around the position that is checked for land, in angles.
+            radar_radius (float): radius around the position that is checked for land, in degrees.
         Returns:
             distance_to_land, angle_to_land (Tuple[float, float]): distance (in km) and angle (in degrees from the North) to the closest land
         """
@@ -201,6 +202,46 @@ class Chart:
         
         else:
             return [None, None]
+
+
+    def find_closest_water(self, longitude: float, latitude: float, radar_radius: float = 0.05):
+            """Calculates the distance and angle to the closest water body within a certain lon/lat radius. Used to find a starting point given a landing site on land.
+
+            Args:
+                position (np.ndarray): current position (lon/lat)
+                radar_radius (float): radius around the position that is checked for land, in degrees.
+            Returns:
+                closest_water_coordinates (Tuple[float, float]): longitude and latitude to closest square of water.
+            """
+            r_earth = 6371 # km
+            position = np.array([longitude, latitude])
+
+            # select only u_current, since if u is None, then v is None too.
+            selected_radius = self.u_current_all.sel(time=self.start_date,
+                                                    longitude=slice(longitude - radar_radius, longitude + radar_radius),
+                                                    latitude=slice(latitude - radar_radius, latitude + radar_radius))
+            
+            # calculate whether there is land anywhere
+            values_count = sum(sum(selected_radius.notnull().values))
+            isThereWater = False if values_count == 0 else True
+
+            if isThereWater:
+                selected_radius = selected_radius.to_dataset()
+                # calculate matrix of distances
+                distances = selected_radius.assign(distance = lambda x: (r_earth*np.pi/180)*np.sqrt((x.u.latitude - latitude)**2 
+                                                                                                    + (x.u.longitude - longitude)**2)*np.cos(latitude*np.pi/180))
+                idx_lat_closest = distances.where(distances.u.notnull()).distance.argmin(dim=['latitude', 'longitude'])['latitude'].values
+                idx_lon_closest = distances.where(distances.u.notnull()).distance.argmin(dim=['latitude', 'longitude'])['longitude'].values
+                lat_closest = distances.latitude[idx_lat_closest].values
+                lon_closest = distances.longitude[idx_lon_closest].values
+
+                #distance_to_land = distances.distance[idx_lat_closest][idx_lon_closest].values
+                #angle_to_land = geo.bearing_from_lonlat(position, np.array([lon_closest, lat_closest]))
+
+                return [lon_closest.item(), lat_closest.item()]
+            
+            else:
+                return [None, None]
 
         
 
