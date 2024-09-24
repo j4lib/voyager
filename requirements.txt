@@ -10,3 +10,4 @@ geopy
 scipy
 dask
 netcdf4
+xoak
