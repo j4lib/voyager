@@ -137,7 +137,7 @@ class WeightedGrid(Grid):
 
         map = map.values
 
-        mask = np.isnan(map).astype(np.float)
+        mask = np.isnan(map).astype(float)
         grid = cls(*mask.shape)
 
         grid.weighted_mask = cls.create_shoreline_contour(mask, **kwargs)
